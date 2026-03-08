@@ -91,14 +91,15 @@ class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        from rest_framework_simplejwt.exceptions import TokenError
         try:
             refresh_token = request.data.get('refresh')
             if refresh_token:
                 token = RefreshToken(refresh_token)
                 token.blacklist()
-            return success_response(message="登出成功")
-        except Exception:
-            return success_response(message="登出成功")
+        except TokenError:
+            pass
+        return success_response(message="登出成功")
 
 
 class UserProfileView(RetrieveUpdateAPIView):

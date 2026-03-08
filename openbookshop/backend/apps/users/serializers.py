@@ -99,7 +99,7 @@ class UserListSerializer(serializers.ModelSerializer):
 class OperationLogSerializer(serializers.ModelSerializer):
     """操作日志序列化器"""
 
-    username = serializers.CharField(source='user.username', read_only=True, default='')
+    username = serializers.CharField(source='user.username', read_only=True)
 
     class Meta:
         model = OperationLog
