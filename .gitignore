@@ -205,3 +205,19 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Frontend build
+openbookshop/frontend/dist/
+
+# Media uploads
+openbookshop/backend/media/
+
+# Backend logs
+openbookshop/backend/logs/
