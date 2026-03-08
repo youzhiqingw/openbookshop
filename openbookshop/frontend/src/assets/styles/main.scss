@@ -1,3 +1,52 @@
+// ─── Design System Variables ────────────────────────────────────────────────
+:root {
+  // Primary (brand green)
+  --color-primary:       #2C5F2D;
+  --color-primary-light: #4A7C4B;
+  --color-primary-pale:  #E8F5E9;
+
+  // Accent (promotion red-orange)
+  --color-accent:        #C75B39;
+  --color-accent-light:  #E07A5F;
+  --color-accent-pale:   #FBE9E7;
+
+  // Neutral
+  --color-text-title:    #1A1A1A;
+  --color-text-body:     #333333;
+  --color-text-secondary:#666666;
+  --color-text-placeholder:#999999;
+  --color-border:        #E5E5E5;
+  --color-bg-gray:       #F5F5F5;
+  --color-white:         #FFFFFF;
+
+  // Semantic
+  --color-success:       #52C41A;
+  --color-warning:       #FAAD14;
+  --color-error:         #F5222D;
+  --color-info:          #1890FF;
+
+  // Spacing
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  // Override Element Plus primary color
+  --el-color-primary:              #2C5F2D;
+  --el-color-primary-light-3:      #4A7C4B;
+  --el-color-primary-light-5:      #7FA880;
+  --el-color-primary-light-7:      #B5D1B6;
+  --el-color-primary-light-8:      #CCDECE;
+  --el-color-primary-light-9:      #E8F5E9;
+  --el-color-primary-dark-2:       #234D24;
+  --el-menu-active-color:          #2C5F2D;
+  --el-menu-hover-bg-color:        #F5F5F5;
+}
+
+// ─── Reset & Base ────────────────────────────────────────────────────────────
 * {
   box-sizing: border-box;
   margin: 0;
@@ -5,9 +54,10 @@
 }
 
 body {
-  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background-color: #f5f7fa;
-  color: #333;
+  font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--color-bg-gray);
+  color: var(--color-text-body);
+  line-height: 1.6;
 }
 
 a {
@@ -15,6 +65,7 @@ a {
   color: inherit;
 }
 
+// ─── Layout Utilities ────────────────────────────────────────────────────────
 .page-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -23,4 +74,18 @@ a {
 
 .text-center {
   text-align: center;
+}
+
+// ─── Tag Utilities ───────────────────────────────────────────────────────────
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &-primary { background: var(--color-primary-pale); color: var(--color-primary); }
+  &-accent  { background: var(--color-accent-pale);  color: var(--color-accent); }
+  &-gray    { background: var(--color-bg-gray);       color: var(--color-text-secondary); }
 }

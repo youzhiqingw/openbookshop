@@ -289,13 +289,13 @@ onMounted(fetchBook)
   .price {
     font-size: 28px;
     font-weight: bold;
-    color: #e6a23c;
+    color: #C75B39;
   }
 
   .stock-info {
-    color: #67c23a;
+    color: #52C41A;
     font-size: 14px;
-    &.out { color: #f56c6c; }
+    &.out { color: #F5222D; }
   }
 }
 

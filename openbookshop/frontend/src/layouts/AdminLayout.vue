@@ -5,9 +5,9 @@
       <el-menu
         :default-active="$route.path"
         router
-        background-color="#001529"
-        text-color="#a6adb4"
-        active-text-color="#fff"
+        background-color="#FFFFFF"
+        text-color="#666666"
+        active-text-color="#2C5F2D"
       >
         <el-menu-item index="/admin/dashboard">
           <el-icon><DataAnalysis /></el-icon>
@@ -112,25 +112,39 @@ async function handleCommand(command) {
 }
 
 .sidebar {
-  background: #001529;
+  background: #FFFFFF;
+  border-right: 1px solid #E5E5E5;
   overflow-y: auto;
 
   .sidebar-logo {
-    padding: 20px;
+    padding: 20px 24px;
     font-size: 16px;
-    font-weight: bold;
-    color: #fff;
-    border-bottom: 1px solid #002140;
+    font-weight: 700;
+    color: #2C5F2D;
+    border-bottom: 1px solid #E5E5E5;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   :deep(.el-menu) {
     border-right: none;
   }
+
+  :deep(.el-menu-item.is-active) {
+    background-color: #E8F5E9 !important;
+    border-right: 3px solid #2C5F2D;
+  }
+
+  :deep(.el-menu-item:hover) {
+    background-color: #F5F5F5 !important;
+    color: #333333 !important;
+  }
 }
 
 .admin-header {
   background: #fff;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #E5E5E5;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -141,6 +155,7 @@ async function handleCommand(command) {
     align-items: center;
     gap: 8px;
     cursor: pointer;
+    color: #333333;
   }
 }
 </style>
