@@ -183,3 +183,143 @@ class AdminUserListTests(APITestCase):
         self.client.force_authenticate(user=self.normal_user)
         response = self.client.get('/api/v1/users/admin/users/')
         self.assertEqual(response.status_code, 403)
+
+
+class LogoutTests(APITestCase):
+    """用户登出测试"""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser', password='TestPass123!'
+        )
+        self.login_url = reverse('login')
+        self.logout_url = reverse('logout')
+
+    def test_logout_success(self):
+        login_resp = self.client.post(self.login_url, {
+            'username': 'testuser', 'password': 'TestPass123!'
+        }, format='json')
+        refresh_token = login_resp.data['data']['tokens']['refresh']
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.logout_url, {'refresh': refresh_token}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+    def test_logout_requires_auth(self):
+        response = self.client.post(self.logout_url, {}, format='json')
+        self.assertEqual(response.status_code, 401)
+
+
+class ChangePasswordTests(APITestCase):
+    """修改密码测试"""
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser', password='TestPass123!'
+        )
+        self.client.force_authenticate(user=self.user)
+        self.url = reverse('change_password')
+
+    def test_change_password_success(self):
+        response = self.client.put(self.url, {
+            'old_password': 'TestPass123!',
+            'new_password': 'NewPass456!',
+            'new_password2': 'NewPass456!',
+        }, format='json')
+        self.assertEqual(response.status_code, 200)
+
+    def test_change_password_wrong_old(self):
+        response = self.client.put(self.url, {
+            'old_password': 'WrongPass!',
+            'new_password': 'NewPass456!',
+            'new_password2': 'NewPass456!',
+        }, format='json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_change_password_mismatch(self):
+        response = self.client.put(self.url, {
+            'old_password': 'TestPass123!',
+            'new_password': 'NewPass456!',
+            'new_password2': 'DifferentPass!',
+        }, format='json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_change_password_requires_auth(self):
+        self.client.force_authenticate(user=None)
+        response = self.client.put(self.url, {
+            'old_password': 'TestPass123!',
+            'new_password': 'NewPass456!',
+            'new_password2': 'NewPass456!',
+        }, format='json')
+        self.assertEqual(response.status_code, 401)
+
+
+class AdminUserToggleStatusTests(APITestCase):
+    """管理员切换用户状态测试"""
+
+    def setUp(self):
+        self.admin = User.objects.create_user(
+            username='admin', password='AdminPass123!', role='admin', is_staff=True
+        )
+        self.target_user = User.objects.create_user(
+            username='target', password='TestPass123!'
+        )
+        self.url = reverse('admin_user_toggle_status', args=[self.target_user.pk])
+
+    def test_admin_can_ban_user(self):
+        self.client.force_authenticate(user=self.admin)
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.target_user.refresh_from_db()
+        self.assertFalse(self.target_user.is_active)
+
+    def test_admin_can_unban_user(self):
+        self.target_user.is_active = False
+        self.target_user.save()
+        self.client.force_authenticate(user=self.admin)
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.target_user.refresh_from_db()
+        self.assertTrue(self.target_user.is_active)
+
+    def test_admin_cannot_toggle_self(self):
+        self.client.force_authenticate(user=self.admin)
+        self_url = reverse('admin_user_toggle_status', args=[self.admin.pk])
+        response = self.client.post(self_url)
+        self.assertEqual(response.status_code, 400)
+
+    def test_non_admin_cannot_toggle(self):
+        normal_user = User.objects.create_user(
+            username='normal', password='NormalPass123!'
+        )
+        self.client.force_authenticate(user=normal_user)
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_toggle_nonexistent_user(self):
+        self.client.force_authenticate(user=self.admin)
+        url = reverse('admin_user_toggle_status', args=[9999])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 404)
+
+
+class AdminOperationLogTests(APITestCase):
+    """管理员操作日志测试"""
+
+    def setUp(self):
+        self.admin = User.objects.create_user(
+            username='admin', password='AdminPass123!', role='admin', is_staff=True
+        )
+        self.normal_user = User.objects.create_user(
+            username='normal', password='NormalPass123!'
+        )
+        self.url = reverse('admin_operation_logs')
+
+    def test_admin_can_view_logs(self):
+        self.client.force_authenticate(user=self.admin)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_non_admin_cannot_view_logs(self):
+        self.client.force_authenticate(user=self.normal_user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 403)

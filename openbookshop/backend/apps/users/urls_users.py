@@ -10,5 +10,7 @@ urlpatterns = [
     path('profile/', views.UserProfileView.as_view(), name='user_profile'),
     path('change-password/', views.ChangePasswordView.as_view(), name='change_password'),
     path('admin/users/', views.AdminUserListView.as_view(), name='admin_user_list'),
+    path('admin/users/<int:pk>/toggle-status/', views.AdminUserToggleStatusView.as_view(), name='admin_user_toggle_status'),
+    path('admin/logs/', views.AdminOperationLogView.as_view(), name='admin_operation_logs'),
     path('', include(router.urls)),
 ]
