@@ -1,10 +1,12 @@
 from django.urls import path
 
 from .views import (
-    AdminOrderListView, CartAddView, CartClearView, CartDeleteView,
-    CartListView, CartUpdateView, MerchantOrderListView, MerchantOrderShipView,
-    OrderCancelView, OrderConfirmView, OrderCreateView, OrderDetailView,
-    OrderListView, OrderPayCallbackView, OrderPayView, OrderTrackingView,
+    AdminFinanceListView, AdminOrderListView, AdminStatisticsView,
+    CartAddView, CartClearView, CartDeleteView, CartListView, CartUpdateView,
+    MerchantAnalyticsView, MerchantFinanceListView, MerchantOrderListView,
+    MerchantOrderShipView, OrderCancelView, OrderConfirmView, OrderCreateView,
+    OrderDetailView, OrderListView, OrderPayCallbackView, OrderPayView,
+    OrderTrackingView,
 )
 
 urlpatterns = [
@@ -27,8 +29,12 @@ urlpatterns = [
 
     # Merchant
     path('merchant/', MerchantOrderListView.as_view(), name='merchant-order-list'),
+    path('merchant/finance/', MerchantFinanceListView.as_view(), name='merchant-finance-list'),
+    path('merchant/analytics/', MerchantAnalyticsView.as_view(), name='merchant-analytics'),
     path('merchant/<int:pk>/ship/', MerchantOrderShipView.as_view(), name='merchant-order-ship'),
 
     # Admin
     path('admin/', AdminOrderListView.as_view(), name='admin-order-list'),
+    path('admin/finance/', AdminFinanceListView.as_view(), name='admin-finance-list'),
+    path('admin/statistics/', AdminStatisticsView.as_view(), name='admin-statistics'),
 ]

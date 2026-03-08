@@ -116,3 +116,37 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.order.order_no} - {self.book_title}"
+
+
+class FinanceRecord(models.Model):
+    """财务流水记录"""
+
+    TYPE_CHOICES = [
+        ('income', '订单收入'),
+        ('refund', '退款支出'),
+    ]
+
+    order = models.ForeignKey(
+        Order, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='finance_records', verbose_name='关联订单',
+    )
+    merchant = models.ForeignKey(
+        'merchants.Merchant', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='finance_records', verbose_name='商家',
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='finance_records', verbose_name='用户',
+    )
+    type = models.CharField('类型', max_length=20, choices=TYPE_CHOICES)
+    amount = models.DecimalField('金额', max_digits=12, decimal_places=2)
+    description = models.CharField('描述', max_length=200, blank=True)
+    created_at = models.DateTimeField('创建时间', auto_now_add=True)
+
+    class Meta:
+        verbose_name = '财务流水'
+        verbose_name_plural = verbose_name
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.get_type_display()} ¥{self.amount} - {self.description}"

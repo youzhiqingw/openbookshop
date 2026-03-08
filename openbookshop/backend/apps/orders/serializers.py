@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from apps.books.serializers import BookListSerializer
 
-from .models import Cart, Order, OrderItem
+from .models import Cart, FinanceRecord, Order, OrderItem
 
 
 class CartSerializer(serializers.ModelSerializer):
@@ -103,3 +103,21 @@ class OrderCreateSerializer(serializers.Serializer):
         except Address.DoesNotExist:
             raise serializers.ValidationError("地址不存在或不属于当前用户")
         return value
+
+
+class FinanceRecordSerializer(serializers.ModelSerializer):
+    """财务流水序列化器"""
+
+    type_display = serializers.CharField(source='get_type_display', read_only=True)
+    order_no = serializers.CharField(source='order.order_no', read_only=True, default='')
+    merchant_name = serializers.CharField(source='merchant.store_name', read_only=True, default='')
+    username = serializers.CharField(source='user.username', read_only=True, default='')
+
+    class Meta:
+        model = FinanceRecord
+        fields = [
+            'id', 'order', 'order_no', 'merchant', 'merchant_name',
+            'user', 'username', 'type', 'type_display',
+            'amount', 'description', 'created_at',
+        ]
+        read_only_fields = fields
