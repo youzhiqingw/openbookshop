@@ -173,7 +173,7 @@ async function fetchBooks(page = 1) {
 async function fetchCategories() {
   try {
     const res = await adminApi.getCategories()
-    const list = res.data || res || []
+    const list = res.data?.results || res.data || res || []
     const flat = []
     ;(Array.isArray(list) ? list : []).forEach((cat) => {
       flat.push(cat)

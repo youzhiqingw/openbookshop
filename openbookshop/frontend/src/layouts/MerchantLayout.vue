@@ -29,6 +29,10 @@
           <el-icon><Wallet /></el-icon>
           <span>收支记录</span>
         </el-menu-item>
+        <el-menu-item index="/merchant/stock-warning">
+          <el-icon><Warning /></el-icon>
+          <span>库存预警</span>
+        </el-menu-item>
         <el-menu-item index="/merchant/reviews">
           <el-icon><ChatDotRound /></el-icon>
           <span>评论管理</span>

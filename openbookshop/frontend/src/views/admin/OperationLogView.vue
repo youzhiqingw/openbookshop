@@ -9,6 +9,8 @@
               <el-option label="auth" value="auth" />
               <el-option label="admin" value="admin" />
               <el-option label="merchants" value="merchants" />
+              <el-option label="orders" value="orders" />
+              <el-option label="books" value="books" />
             </el-select>
             <el-input
               v-model="searchQuery"

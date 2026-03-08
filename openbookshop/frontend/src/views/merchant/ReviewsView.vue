@@ -96,7 +96,7 @@ async function fetchList() {
   try {
     const params = { page: page.value, page_size: pageSize.value }
     const res = await merchantApi.getReviewList(params)
-    const data = res.data.data
+    const data = res.data
     list.value = data.results
     total.value = data.total
   } catch {

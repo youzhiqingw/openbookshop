@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-view">
     <el-row :gutter="20" class="overview-cards">
-      <el-col :span="6" v-for="item in overviewCards" :key="item.title">
+      <el-col :span="5" v-for="item in overviewCards" :key="item.title">
         <el-card shadow="hover" class="stat-card" :style="{ borderTop: `4px solid ${item.color}` }">
           <div class="stat-content">
             <div class="stat-icon" :style="{ color: item.color }">
@@ -52,7 +52,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { adminApi } from '@/api'
 import { ElMessage } from 'element-plus'
-import { User, Shop, Reading, ShoppingCart } from '@element-plus/icons-vue'
+import { User, Shop, Reading, Warning, Wallet } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 
 const stats = ref(null)
@@ -79,14 +79,15 @@ const overviewCards = computed(() => {
     { title: '注册用户', value: ov.total_users, icon: 'User', color: '#409eff' },
     { title: '在营商家', value: ov.total_merchants, icon: 'Shop', color: '#67c23a' },
     { title: '在售图书', value: ov.total_books, icon: 'Reading', color: '#e6a23c' },
-    { title: '平台总收入', value: `¥${Number(ov.total_revenue).toFixed(2)}`, icon: 'ShoppingCart', color: '#f56c6c' },
+    { title: '库存预警', value: ov.low_stock_count, icon: 'Warning', color: '#f56c6c' },
+    { title: '平台总收入', value: `¥${Number(ov.total_revenue).toFixed(2)}`, icon: 'Wallet', color: '#909399' },
   ]
 })
 
 async function fetchStatistics() {
   try {
     const res = await adminApi.getStatistics()
-    stats.value = res.data.data
+    stats.value = res.data
     initCharts()
   } catch {
     ElMessage.error('获取统计数据失败')
