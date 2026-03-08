@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Book, Category
+from .models import Book, Category, Review
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -77,3 +77,36 @@ class BookListSerializer(serializers.ModelSerializer):
             'id', 'merchant', 'merchant_name', 'category', 'category_name',
             'title', 'author', 'cover', 'price', 'stock', 'sales', 'is_on_sale',
         ]
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    """评论序列化器"""
+
+    username = serializers.CharField(source='user.username', read_only=True)
+    book_title = serializers.CharField(source='book.title', read_only=True)
+    rating_display = serializers.CharField(source='get_rating_display', read_only=True)
+
+    class Meta:
+        model = Review
+        fields = [
+            'id', 'user', 'username', 'book', 'book_title', 'order',
+            'rating', 'rating_display', 'content',
+            'is_sensitive', 'is_approved',
+            'merchant_reply', 'replied_at',
+            'created_at', 'updated_at',
+        ]
+        read_only_fields = ['id', 'user', 'is_sensitive', 'is_approved', 'replied_at', 'created_at', 'updated_at']
+
+
+class ReviewCreateSerializer(serializers.Serializer):
+    """创建评论序列化器"""
+
+    order_id = serializers.IntegerField(required=False, allow_null=True)
+    rating = serializers.IntegerField(min_value=1, max_value=5)
+    content = serializers.CharField(min_length=5, max_length=500)
+
+
+class MerchantReplySerializer(serializers.Serializer):
+    """商家回复评论序列化器"""
+
+    merchant_reply = serializers.CharField(min_length=1, max_length=500)

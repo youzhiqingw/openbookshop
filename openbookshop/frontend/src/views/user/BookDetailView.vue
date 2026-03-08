@@ -65,9 +65,74 @@
         <template #header>图书简介</template>
         <p class="description">{{ book.description }}</p>
       </el-card>
+
+      <!-- Reviews -->
+      <el-card class="reviews-card">
+        <template #header>
+          <div class="reviews-header">
+            <span>读者评论（{{ total }}条）</span>
+            <el-button
+              v-if="authStore.isLoggedIn && !authStore.isAdmin && !authStore.isMerchant"
+              type="primary"
+              size="small"
+              @click="openReviewDialog"
+            >写评论</el-button>
+          </div>
+        </template>
+
+        <div v-if="reviews.length === 0" class="no-reviews">
+          <el-empty description="暂无评论" />
+        </div>
+        <div v-else>
+          <div v-for="review in reviews" :key="review.id" class="review-item">
+            <div class="review-top">
+              <span class="reviewer">{{ review.username }}</span>
+              <el-rate :model-value="review.rating" disabled show-score size="small" />
+              <span class="review-date">{{ formatDate(review.created_at) }}</span>
+            </div>
+            <p class="review-content">{{ review.content }}</p>
+            <div v-if="review.merchant_reply" class="merchant-reply">
+              <el-icon><ChatDotRound /></el-icon>
+              <span class="reply-label">商家回复：</span>
+              <span>{{ review.merchant_reply }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pagination" v-if="total > pageSize">
+          <el-pagination
+            v-model:current-page="reviewPage"
+            :page-size="pageSize"
+            :total="total"
+            layout="prev, pager, next"
+            @current-change="fetchReviews"
+          />
+        </div>
+      </el-card>
     </template>
 
-    <el-empty v-else-if="!loading" description="图书不存在" />
+    <!-- Review Dialog -->
+    <el-dialog v-model="reviewDialogVisible" title="写评论" width="500px">
+      <el-form label-width="80px">
+        <el-form-item label="评分">
+          <el-rate v-model="reviewForm.rating" show-text />
+        </el-form-item>
+        <el-form-item label="评论内容">
+          <el-input
+            v-model="reviewForm.content"
+            type="textarea"
+            :rows="5"
+            placeholder="请分享您的阅读体验（至少5个字）"
+            maxlength="500"
+            show-word-limit
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="reviewDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="submittingReview" @click="submitReview">提交</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -75,26 +140,74 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { ChatDotRound } from '@element-plus/icons-vue'
 import { bookApi } from '@/api'
 import { useCartStore } from '@/stores/cart'
+import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
 const router = useRouter()
 const cartStore = useCartStore()
+const authStore = useAuthStore()
 
 const book = ref(null)
 const loading = ref(false)
 const quantity = ref(1)
+
+// Reviews
+const reviews = ref([])
+const reviewPage = ref(1)
+const pageSize = 5
+const total = ref(0)
+const reviewDialogVisible = ref(false)
+const submittingReview = ref(false)
+const reviewForm = ref({ rating: 5, content: '' })
 
 async function fetchBook() {
   loading.value = true
   try {
     const res = await bookApi.getDetail(route.params.id)
     book.value = res.data || res
+    fetchReviews()
   } catch {
     book.value = null
   } finally {
     loading.value = false
+  }
+}
+
+async function fetchReviews() {
+  try {
+    const res = await bookApi.getReviews(route.params.id, { page: reviewPage.value, page_size: pageSize })
+    const data = res.data.data
+    reviews.value = data.results
+    total.value = data.total
+  } catch {
+    // silent
+  }
+}
+
+function openReviewDialog() {
+  reviewForm.value = { rating: 5, content: '' }
+  reviewDialogVisible.value = true
+}
+
+async function submitReview() {
+  if (!reviewForm.value.content || reviewForm.value.content.length < 5) {
+    ElMessage.warning('评论内容至少5个字')
+    return
+  }
+  submittingReview.value = true
+  try {
+    await bookApi.createReview(route.params.id, reviewForm.value)
+    ElMessage.success('评论提交成功')
+    reviewDialogVisible.value = false
+    fetchReviews()
+  } catch (err) {
+    const msg = err.response?.data?.message || '提交失败，请确认已购买此书'
+    ElMessage.error(msg)
+  } finally {
+    submittingReview.value = false
   }
 }
 
@@ -105,6 +218,11 @@ async function addToCart() {
 async function buyNow() {
   await cartStore.addToCart(book.value.id, quantity.value)
   router.push('/cart')
+}
+
+function formatDate(dt) {
+  if (!dt) return ''
+  return new Date(dt).toLocaleDateString('zh-CN')
 }
 
 onMounted(fetchBook)
@@ -200,6 +318,58 @@ onMounted(fetchBook)
     line-height: 1.8;
     color: #555;
     white-space: pre-line;
+  }
+}
+
+.reviews-card {
+  margin-top: 24px;
+
+  .reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .review-item {
+    padding: 16px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child { border-bottom: none; }
+
+    .review-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+
+      .reviewer { font-weight: bold; color: #303133; }
+      .review-date { color: #909399; font-size: 12px; margin-left: auto; }
+    }
+
+    .review-content {
+      color: #555;
+      line-height: 1.6;
+      margin: 0 0 8px;
+    }
+
+    .merchant-reply {
+      background: #f5f7fa;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #606266;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+
+      .reply-label { font-weight: bold; white-space: nowrap; }
+    }
+  }
+
+  .pagination {
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
   }
 }
 </style>

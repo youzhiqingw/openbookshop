@@ -21,6 +21,18 @@
           <el-icon><List /></el-icon>
           <span>订单管理</span>
         </el-menu-item>
+        <el-menu-item index="/merchant/analytics">
+          <el-icon><DataAnalysis /></el-icon>
+          <span>数据分析</span>
+        </el-menu-item>
+        <el-menu-item index="/merchant/finance">
+          <el-icon><Wallet /></el-icon>
+          <span>收支记录</span>
+        </el-menu-item>
+        <el-menu-item index="/merchant/reviews">
+          <el-icon><ChatDotRound /></el-icon>
+          <span>评论管理</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>

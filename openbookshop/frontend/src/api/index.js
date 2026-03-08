@@ -35,6 +35,12 @@ export const adminApi = {
   deleteCategory: (id) => request.delete(`/books/admin/categories/${id}/`),
   // Orders
   getOrderList: (params) => request.get('/orders/admin/', { params }),
+  // Statistics & Finance
+  getStatistics: () => request.get('/orders/admin/statistics/'),
+  getFinanceList: (params) => request.get('/orders/admin/finance/', { params }),
+  // Reviews
+  getReviewList: (params) => request.get('/books/admin/reviews/', { params }),
+  approveReview: (id, data) => request.post(`/books/admin/reviews/${id}/approve/`, data),
 }
 
 export const merchantApi = {
@@ -50,12 +56,21 @@ export const merchantApi = {
   // Orders
   getOrderList: (params) => request.get('/orders/merchant/', { params }),
   shipOrder: (id) => request.post(`/orders/merchant/${id}/ship/`),
+  // Finance & Analytics
+  getFinanceList: (params) => request.get('/orders/merchant/finance/', { params }),
+  getAnalytics: () => request.get('/orders/merchant/analytics/'),
+  // Reviews
+  getReviewList: (params) => request.get('/books/merchant/reviews/', { params }),
+  replyReview: (id, data) => request.post(`/books/merchant/reviews/${id}/reply/`, data),
 }
 
 export const bookApi = {
   getList: (params) => request.get('/books/', { params }),
   getDetail: (id) => request.get(`/books/${id}/`),
   getCategories: () => request.get('/books/categories/'),
+  // Reviews
+  getReviews: (id, params) => request.get(`/books/${id}/reviews/`, { params }),
+  createReview: (id, data) => request.post(`/books/${id}/reviews/create/`, data),
 }
 
 export const orderApi = {

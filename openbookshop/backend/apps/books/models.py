@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class Category(models.Model):
@@ -59,3 +60,39 @@ class Book(models.Model):
     @property
     def is_low_stock(self):
         return self.stock <= self.warning_stock
+
+
+class Review(models.Model):
+    """图书评论"""
+
+    RATING_CHOICES = [(i, f'{i}星') for i in range(1, 6)]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        related_name='reviews', verbose_name='用户',
+    )
+    book = models.ForeignKey(
+        Book, on_delete=models.CASCADE,
+        related_name='reviews', verbose_name='图书',
+    )
+    order = models.ForeignKey(
+        'orders.Order', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='reviews', verbose_name='关联订单',
+    )
+    rating = models.IntegerField('评分', choices=RATING_CHOICES, default=5)
+    content = models.TextField('评论内容')
+    is_sensitive = models.BooleanField('包含敏感词', default=False)
+    is_approved = models.BooleanField('已审核通过', default=False)
+    merchant_reply = models.TextField('商家回复', blank=True)
+    replied_at = models.DateTimeField('回复时间', null=True, blank=True)
+    created_at = models.DateTimeField('创建时间', auto_now_add=True)
+    updated_at = models.DateTimeField('更新时间', auto_now=True)
+
+    class Meta:
+        verbose_name = '图书评论'
+        verbose_name_plural = verbose_name
+        ordering = ['-created_at']
+        unique_together = ('user', 'book', 'order')
+
+    def __str__(self):
+        return f"{self.user.username} 对《{self.book.title}》的评论"

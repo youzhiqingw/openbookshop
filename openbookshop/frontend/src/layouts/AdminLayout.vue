@@ -9,6 +9,10 @@
         text-color="#a6adb4"
         active-text-color="#fff"
       >
+        <el-menu-item index="/admin/dashboard">
+          <el-icon><DataAnalysis /></el-icon>
+          <span>数据概览</span>
+        </el-menu-item>
         <el-menu-item index="/admin/users">
           <el-icon><User /></el-icon>
           <span>用户管理</span>
@@ -20,6 +24,14 @@
         <el-menu-item index="/admin/books">
           <el-icon><Reading /></el-icon>
           <span>图书管理</span>
+        </el-menu-item>
+        <el-menu-item index="/admin/reviews">
+          <el-icon><ChatDotRound /></el-icon>
+          <span>评论审核</span>
+        </el-menu-item>
+        <el-menu-item index="/admin/finance">
+          <el-icon><Wallet /></el-icon>
+          <span>财务流水</span>
         </el-menu-item>
         <el-menu-item index="/admin/logs">
           <el-icon><Document /></el-icon>
@@ -68,9 +80,12 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const titleMap = {
+  '/admin/dashboard': '数据概览',
   '/admin/users': '用户管理',
   '/admin/merchants': '商家管理',
   '/admin/books': '图书管理',
+  '/admin/reviews': '评论审核',
+  '/admin/finance': '财务流水',
   '/admin/logs': '操作日志',
 }
 const currentTitle = computed(() => titleMap[route.path] || '管理后台')
