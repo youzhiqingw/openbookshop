@@ -24,7 +24,7 @@
               <el-tag v-if="authStore.user?.is_vip" type="warning" size="small">VIP {{ authStore.user?.vip_level }}</el-tag>
             </div>
             <div class="user-points" v-if="authStore.user?.points !== undefined">
-              <el-icon style="color: #FAAD14"><Star /></el-icon>
+              <el-icon class="points-icon"><Star /></el-icon>
               积分：{{ authStore.user?.points }}
             </div>
           </div>
@@ -242,6 +242,8 @@ function formatDate(dateStr) {
         gap: 4px;
         font-size: 13px;
         color: #666;
+
+        .points-icon { color: #FAAD14; }
       }
     }
   }

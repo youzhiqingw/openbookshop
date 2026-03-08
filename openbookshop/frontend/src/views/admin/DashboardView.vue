@@ -4,8 +4,8 @@
       <el-col :span="5" v-for="item in overviewCards" :key="item.title">
         <el-card shadow="hover" class="stat-card" :style="{ borderTop: `4px solid ${item.color}` }">
           <div class="stat-content">
-            <div class="stat-icon" :style="{ color: item.color }">
-              <el-icon :size="36"><component :is="item.icon" /></el-icon>
+            <div class="stat-icon" :style="{ color: item.color, background: `${item.color}18` }">
+              <el-icon :size="28"><component :is="item.icon" /></el-icon>
             </div>
             <div class="stat-info">
               <div class="stat-value">{{ item.value }}</div>
@@ -191,15 +191,8 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: currentColor;
-    opacity: 0.12;
     flex-shrink: 0;
-    position: relative;
-
-    .el-icon {
-      position: absolute;
-      opacity: 1 / 0.12;
-    }
+    opacity: 0.85;
   }
   .stat-value {
     font-size: 24px;

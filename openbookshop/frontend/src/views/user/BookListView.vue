@@ -103,6 +103,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Search } from '@element-plus/icons-vue'
 import { bookApi } from '@/api'
 import { useCartStore } from '@/stores/cart'
 

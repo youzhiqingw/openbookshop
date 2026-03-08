@@ -11,7 +11,7 @@
             v-for="addr in addresses"
             :key="addr.id"
             :label="addr.id"
-            class="address-item"
+            :class="['address-item', { 'is-selected': selectedAddressId === addr.id }]"
           >
             <span class="addr-name">{{ addr.name }}</span>
             <span class="addr-phone">{{ addr.phone }}</span>
@@ -193,7 +193,7 @@ onMounted(async () => {
   width: 100%;
   transition: border-color 0.2s;
 
-  &:has(input:checked) {
+  &.is-selected {
     border-color: #2C5F2D;
     background: #F0F9F0;
   }
