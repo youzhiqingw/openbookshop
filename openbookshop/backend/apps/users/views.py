@@ -160,5 +160,63 @@ class AdminUserListView(ListAPIView):
     serializer_class = UserListSerializer
     permission_classes = [IsAuthenticated, IsAdmin]
     queryset = User.objects.all().order_by('-date_joined')
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['username', 'email']
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['username', 'email', 'phone']
+    ordering_fields = ['date_joined', 'username']
+
+
+class AdminUserToggleStatusView(APIView):
+    """管理员切换用户激活状态（封禁/解封）"""
+
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def post(self, request, pk):
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return error_response(message="用户不存在", code=404)
+
+        if user == request.user:
+            return error_response(message="不能修改自己的状态")
+
+        user.is_active = not user.is_active
+        user.save(update_fields=['is_active'])
+
+        status_text = '激活' if user.is_active else '封禁'
+        OperationLog.objects.create(
+            user=request.user,
+            action='toggle_user_status',
+            module='admin',
+            detail=f'管理员 {request.user.username} {status_text}用户 {user.username}',
+            ip_address=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT', ''),
+        )
+
+        return success_response(
+            data={'id': user.id, 'username': user.username, 'is_active': user.is_active},
+            message=f"用户已{status_text}",
+        )
+
+
+class AdminOperationLogView(ListAPIView):
+    """管理员查看操作日志"""
+
+    serializer_class = None
+    permission_classes = [IsAuthenticated, IsAdmin]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['user__username', 'action', 'module']
+    ordering_fields = ['created_at']
+
+    def get_serializer_class(self):
+        from .serializers import OperationLogSerializer
+        return OperationLogSerializer
+
+    def get_queryset(self):
+        queryset = OperationLog.objects.select_related('user').order_by('-created_at')
+        action = self.request.query_params.get('action')
+        module = self.request.query_params.get('module')
+        if action:
+            queryset = queryset.filter(action=action)
+        if module:
+            queryset = queryset.filter(module=module)
+        return queryset
