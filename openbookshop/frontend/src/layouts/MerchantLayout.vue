@@ -13,6 +13,14 @@
           <el-icon><Shop /></el-icon>
           <span>店铺资料</span>
         </el-menu-item>
+        <el-menu-item index="/merchant/books">
+          <el-icon><Reading /></el-icon>
+          <span>图书管理</span>
+        </el-menu-item>
+        <el-menu-item index="/merchant/orders">
+          <el-icon><List /></el-icon>
+          <span>订单管理</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>

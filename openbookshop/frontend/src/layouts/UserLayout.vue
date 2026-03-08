@@ -2,7 +2,21 @@
   <el-container class="user-layout">
     <el-header class="header">
       <div class="header-left">
-        <span class="logo">📚 在线书店</span>
+        <span class="logo" @click="router.push('/books')">📚 在线书店</span>
+        <el-menu
+          :default-active="route.path"
+          mode="horizontal"
+          :ellipsis="false"
+          router
+          class="nav-menu"
+        >
+          <el-menu-item index="/books">书城</el-menu-item>
+          <el-menu-item index="/cart">
+            购物车
+            <el-badge v-if="cartStore.totalCount" :value="cartStore.totalCount" class="cart-badge" />
+          </el-menu-item>
+          <el-menu-item index="/orders">我的订单</el-menu-item>
+        </el-menu>
       </div>
       <div class="header-right">
         <el-dropdown @command="handleCommand">
@@ -30,12 +44,18 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useCartStore } from '@/stores/cart'
 import { ElMessage } from 'element-plus'
+import { onMounted } from 'vue'
 
+const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const cartStore = useCartStore()
+
+onMounted(() => cartStore.fetchCart())
 
 async function handleCommand(command) {
   if (command === 'logout') {
@@ -66,12 +86,29 @@ async function handleCommand(command) {
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
+  height: 60px;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
 
   .logo {
     font-size: 20px;
     font-weight: bold;
     color: #409eff;
     cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .nav-menu {
+    border-bottom: none;
+    height: 60px;
+  }
+
+  .cart-badge {
+    margin-left: 4px;
   }
 
   .user-info {
@@ -83,3 +120,4 @@ async function handleCommand(command) {
   }
 }
 </style>
+
