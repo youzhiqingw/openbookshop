@@ -152,29 +152,53 @@ onMounted(async () => {
 
 .section {
   margin-bottom: 24px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+
   h3 {
     font-size: 16px;
     font-weight: 600;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #eee;
+    color: #1A1A1A;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #E8F5E9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 16px;
+      background: #2C5F2D;
+      border-radius: 2px;
+    }
   }
 }
 
 .address-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .address-item {
-  padding: 12px;
-  border: 1px solid #eee;
+  padding: 14px 16px;
+  border: 1px solid #E5E5E5;
   border-radius: 6px;
   width: 100%;
+  transition: border-color 0.2s;
 
-  .addr-name { font-weight: 500; margin-right: 8px; }
+  &:has(input:checked) {
+    border-color: #2C5F2D;
+    background: #F0F9F0;
+  }
+
+  .addr-name { font-weight: 600; color: #1A1A1A; margin-right: 8px; }
   .addr-phone { color: #666; margin-right: 8px; }
   .addr-detail { color: #999; font-size: 13px; }
 }
@@ -190,14 +214,15 @@ onMounted(async () => {
   align-items: center;
   gap: 16px;
   padding: 12px;
-  border: 1px solid #eee;
+  border: 1px solid #F0F0F0;
   border-radius: 6px;
+  background: #FAFAFA;
 
   .item-cover {
     width: 60px;
     height: 75px;
     flex-shrink: 0;
-    background: #f5f7fa;
+    background: #F5F5F5;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -208,22 +233,25 @@ onMounted(async () => {
     .cover-placeholder { font-size: 24px; color: #ccc; }
   }
 
-  .item-title { flex: 1; font-size: 14px; }
+  .item-title { flex: 1; font-size: 14px; font-weight: 500; color: #1A1A1A; }
   .item-price { color: #666; font-size: 13px; }
-  .item-subtotal { font-weight: bold; color: #e6a23c; width: 70px; text-align: right; }
+  .item-subtotal { font-weight: 700; color: #C75B39; width: 70px; text-align: right; }
 }
 
 .order-summary {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   text-align: right;
-  font-size: 16px;
-  margin: 20px 0;
-  padding-top: 16px;
-  border-top: 1px solid #eee;
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 20px;
 
   .total {
-    font-size: 24px;
-    font-weight: bold;
-    color: #e6a23c;
+    font-size: 28px;
+    font-weight: 700;
+    color: #C75B39;
     margin-left: 8px;
   }
 }
@@ -232,5 +260,11 @@ onMounted(async () => {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+
+  .el-button--primary {
+    background: #2C5F2D;
+    border-color: #2C5F2D;
+    &:hover { background: #4A7C4B; border-color: #4A7C4B; }
+  }
 }
 </style>

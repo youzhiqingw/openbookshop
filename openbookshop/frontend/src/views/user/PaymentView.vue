@@ -169,31 +169,56 @@ onMounted(fetchOrder)
   padding: 0 20px;
 }
 
+.payment-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
 .order-info {
   margin-bottom: 24px;
 }
 
 .amount {
-  font-size: 24px;
-  font-weight: bold;
-  color: #e6a23c;
+  font-size: 28px;
+  font-weight: 700;
+  color: #C75B39;
 }
 
 .payment-method {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 
-  h3 { margin-bottom: 12px; font-size: 16px; }
+  h3 {
+    margin-bottom: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1A1A1A;
+  }
 
-  .method-group { display: flex; gap: 8px; }
+  .method-group {
+    display: flex;
+    gap: 12px;
+
+    :deep(.el-radio-button__inner) {
+      padding: 10px 20px;
+      border-radius: 4px;
+    }
+  }
 }
 
 .pay-url-box {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .pay-actions {
   display: flex;
   gap: 12px;
   justify-content: center;
+  padding-top: 8px;
+
+  .el-button--primary {
+    background: #2C5F2D;
+    border-color: #2C5F2D;
+    &:hover { background: #4A7C4B; border-color: #4A7C4B; }
+  }
 }
 </style>

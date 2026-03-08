@@ -3,9 +3,11 @@
     <el-card class="profile-card">
       <template #header>
         <div class="card-header">
-          <span>个人资料</span>
-          <el-button v-if="!editing" type="primary" text @click="editing = true">编辑</el-button>
-          <div v-else>
+          <span class="section-title">个人资料</span>
+          <el-button v-if="!editing" type="primary" text @click="editing = true">
+            <el-icon><Edit /></el-icon> 编辑
+          </el-button>
+          <div v-else class="edit-actions">
             <el-button text @click="cancelEdit">取消</el-button>
             <el-button type="primary" :loading="saving" @click="saveProfile">保存</el-button>
           </div>
@@ -14,10 +16,17 @@
 
       <div class="profile-content">
         <div class="avatar-section">
-          <el-avatar :size="80" icon="UserFilled" />
-          <div class="user-role">
-            <el-tag :type="roleTagType">{{ roleLabel }}</el-tag>
-            <el-tag v-if="authStore.user?.is_vip" type="warning" class="ml-8">VIP {{ authStore.user?.vip_level }}</el-tag>
+          <el-avatar :size="88" icon="UserFilled" class="user-avatar" />
+          <div class="user-meta">
+            <div class="username">{{ authStore.user?.username }}</div>
+            <div class="user-role">
+              <el-tag :type="roleTagType" size="small">{{ roleLabel }}</el-tag>
+              <el-tag v-if="authStore.user?.is_vip" type="warning" size="small">VIP {{ authStore.user?.vip_level }}</el-tag>
+            </div>
+            <div class="user-points" v-if="authStore.user?.points !== undefined">
+              <el-icon style="color: #FAAD14"><Star /></el-icon>
+              积分：{{ authStore.user?.points }}
+            </div>
           </div>
         </div>
 
@@ -27,6 +36,7 @@
           :model="editForm"
           :rules="rules"
           label-width="100px"
+          class="edit-form"
         >
           <el-form-item label="用户名">
             <el-input :value="authStore.user?.username" disabled />
@@ -39,20 +49,29 @@
           </el-form-item>
         </el-form>
 
-        <el-descriptions v-else :column="1" border>
-          <el-descriptions-item label="用户名">{{ authStore.user?.username }}</el-descriptions-item>
-          <el-descriptions-item label="邮箱">{{ authStore.user?.email || '未填写' }}</el-descriptions-item>
-          <el-descriptions-item label="手机号">{{ authStore.user?.phone || '未填写' }}</el-descriptions-item>
-          <el-descriptions-item label="积分">{{ authStore.user?.points }}</el-descriptions-item>
-          <el-descriptions-item label="注册时间">{{ formatDate(authStore.user?.date_joined) }}</el-descriptions-item>
-        </el-descriptions>
+        <div v-else class="info-grid">
+          <div class="info-item">
+            <span class="info-label">邮箱</span>
+            <span class="info-value">{{ authStore.user?.email || '未填写' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">手机号</span>
+            <span class="info-value">{{ authStore.user?.phone || '未填写' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">注册时间</span>
+            <span class="info-value">{{ formatDate(authStore.user?.date_joined) }}</span>
+          </div>
+        </div>
       </div>
     </el-card>
 
     <!-- Change Password -->
     <el-card class="password-card">
-      <template #header><span>修改密码</span></template>
-      <el-form ref="pwdFormRef" :model="pwdForm" :rules="pwdRules" label-width="120px" style="max-width: 400px">
+      <template #header>
+        <span class="section-title">修改密码</span>
+      </template>
+      <el-form ref="pwdFormRef" :model="pwdForm" :rules="pwdRules" label-width="120px" class="pwd-form">
         <el-form-item label="原密码" prop="old_password">
           <el-input v-model="pwdForm.old_password" type="password" show-password />
         </el-form-item>
@@ -63,7 +82,9 @@
           <el-input v-model="pwdForm.new_password2" type="password" show-password />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :loading="changingPwd" @click="changePassword">修改密码</el-button>
+          <el-button type="primary" :loading="changingPwd" @click="changePassword">
+            修改密码
+          </el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -73,6 +94,7 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { ElMessage } from 'element-plus'
+import { Edit, Star } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
 import { userApi } from '@/api'
 
@@ -163,9 +185,16 @@ function formatDate(dateStr) {
 .profile-page {
   max-width: 700px;
   margin: 24px auto;
+  padding: 0 20px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1A1A1A;
 }
 
 .card-header {
@@ -174,20 +203,73 @@ function formatDate(dateStr) {
   align-items: center;
 }
 
+.edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .profile-content {
   .avatar-section {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 20px;
+    padding: 16px 0 24px;
+    border-bottom: 1px solid #F5F5F5;
     margin-bottom: 24px;
 
-    .user-role {
-      display: flex;
-      gap: 8px;
+    .user-avatar {
+      background: linear-gradient(135deg, #2C5F2D, #4A7C4B);
+      flex-shrink: 0;
+    }
+
+    .user-meta {
+      .username {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1A1A1A;
+        margin-bottom: 8px;
+      }
+
+      .user-role {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
+      .user-points {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        color: #666;
+      }
     }
   }
 }
 
-.ml-8 { margin-left: 8px; }
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .info-label {
+      font-size: 12px;
+      color: #999;
+      font-weight: 500;
+    }
+
+    .info-value {
+      font-size: 14px;
+      color: #333;
+    }
+  }
+}
+
+.edit-form { max-width: 480px; }
+.pwd-form { max-width: 420px; }
 </style>

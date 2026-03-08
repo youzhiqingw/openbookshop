@@ -218,9 +218,13 @@ onMounted(fetchOrders)
 }
 
 .order-card {
-  border: 1px solid #eee;
+  background: #fff;
+  border: 1px solid #E5E5E5;
   border-radius: 8px;
   overflow: hidden;
+  transition: box-shadow 0.2s;
+
+  &:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 }
 
 .order-header {
@@ -228,18 +232,19 @@ onMounted(fetchOrders)
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  background: #f5f7fa;
+  background: #FAFAFA;
+  border-bottom: 1px solid #F0F0F0;
   font-size: 13px;
 
-  .order-no { font-weight: 500; flex: 1; }
-  .order-time { color: #999; margin-left: auto; }
+  .order-no { font-weight: 600; flex: 1; color: #333; font-family: monospace; }
+  .order-time { color: #999; margin-left: auto; font-size: 12px; }
 }
 
 .order-items {
-  padding: 12px 16px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .order-item {
@@ -251,7 +256,7 @@ onMounted(fetchOrders)
     width: 50px;
     height: 63px;
     flex-shrink: 0;
-    background: #f5f7fa;
+    background: #F5F5F5;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -263,7 +268,7 @@ onMounted(fetchOrders)
   }
 
   .item-info { flex: 1; }
-  .item-title { font-size: 13px; font-weight: 500; }
+  .item-title { font-size: 13px; font-weight: 500; color: #1A1A1A; margin-bottom: 2px; }
   .item-author { font-size: 12px; color: #999; }
   .item-price { color: #666; font-size: 13px; }
 }
@@ -273,20 +278,23 @@ onMounted(fetchOrders)
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #F0F0F0;
+  background: #FAFAFA;
 
   .order-total {
     font-size: 14px;
-    strong { font-size: 18px; color: #e6a23c; }
+    color: #666;
+    strong { font-size: 20px; color: #C75B39; font-weight: 700; }
   }
 
-  .order-actions { display: flex; gap: 8px; }
+  .order-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 }
 
 .pagination-wrap {
   display: flex;
   justify-content: center;
-  margin-top: 16px;
+  margin-top: 20px;
+  padding: 8px 0;
 }
 
 .track-timeline {

@@ -86,15 +86,18 @@ async function handleCommand(command) {
 <style lang="scss" scoped>
 .merchant-layout {
   min-height: 100vh;
+  background: #F5F5F5;
 }
 
 .sidebar {
   background: #FFFFFF;
   border-right: 1px solid #E5E5E5;
   overflow-y: auto;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.04);
 
   .sidebar-logo {
-    padding: 20px 24px;
+    padding: 0 24px;
+    height: 64px;
     font-size: 16px;
     font-weight: 700;
     color: #2C5F2D;
@@ -102,18 +105,30 @@ async function handleCommand(command) {
     display: flex;
     align-items: center;
     gap: 8px;
+    letter-spacing: 0.5px;
   }
 
   :deep(.el-menu) {
     border-right: none;
+    padding: 8px 0;
+  }
+
+  :deep(.el-menu-item) {
+    height: 48px;
+    line-height: 48px;
+    margin: 2px 8px;
+    border-radius: 6px;
+    padding: 0 16px !important;
   }
 
   :deep(.el-menu-item.is-active) {
     background-color: #E8F5E9 !important;
-    border-right: 3px solid #2C5F2D;
+    color: #2C5F2D !important;
+    font-weight: 600;
+    border-left: 3px solid #2C5F2D;
   }
 
-  :deep(.el-menu-item:hover) {
+  :deep(.el-menu-item:hover:not(.is-active)) {
     background-color: #F5F5F5 !important;
     color: #333333 !important;
   }
@@ -125,9 +140,11 @@ async function handleCommand(command) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 24px;
+  height: 64px;
   font-weight: 600;
   color: #1A1A1A;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 
   .user-info {
     display: flex;
@@ -135,6 +152,16 @@ async function handleCommand(command) {
     gap: 8px;
     cursor: pointer;
     color: #333333;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 400;
+    transition: background 0.2s;
+
+    &:hover { background: #F5F5F5; }
   }
+}
+
+:deep(.el-main) {
+  padding: 24px;
 }
 </style>

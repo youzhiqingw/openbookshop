@@ -77,6 +77,7 @@ async function handleCommand(command) {
 <style lang="scss" scoped>
 .user-layout {
   min-height: 100vh;
+  background: #F5F5F5;
 }
 
 .header {
@@ -85,16 +86,17 @@ async function handleCommand(command) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 32px;
   height: 64px;
   position: sticky;
   top: 0;
   z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 
   .header-left {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 24px;
   }
 
   .logo {
@@ -104,6 +106,9 @@ async function handleCommand(command) {
     cursor: pointer;
     white-space: nowrap;
     letter-spacing: 0.5px;
+    transition: color 0.2s;
+
+    &:hover { color: #4A7C4B; }
   }
 
   .nav-menu {
@@ -115,6 +120,9 @@ async function handleCommand(command) {
       color: #333333;
       border-bottom: 2px solid transparent;
       transition: color 0.3s, border-color 0.3s;
+      height: 64px;
+      line-height: 64px;
+      padding: 0 16px;
 
       &:hover {
         color: #2C5F2D !important;
@@ -124,7 +132,7 @@ async function handleCommand(command) {
       &.is-active {
         color: #2C5F2D !important;
         border-bottom-color: #2C5F2D !important;
-        font-weight: 500;
+        font-weight: 600;
         background-color: transparent !important;
       }
     }
@@ -140,9 +148,19 @@ async function handleCommand(command) {
     gap: 8px;
     cursor: pointer;
     color: #333333;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background 0.2s;
 
-    &:hover { color: #2C5F2D; }
+    &:hover {
+      background: #F5F5F5;
+      color: #2C5F2D;
+    }
   }
+}
+
+:deep(.el-main) {
+  padding: 24px 32px;
 }
 </style>
 

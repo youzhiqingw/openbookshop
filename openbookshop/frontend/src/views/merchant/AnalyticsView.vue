@@ -64,12 +64,12 @@ const overviewCards = computed(() => {
   if (!analytics.value) return []
   const ov = analytics.value.overview
   return [
-    { title: '在售图书', value: `${ov.on_sale_books} / ${ov.total_books}`, color: '#409eff' },
-    { title: '累计订单', value: ov.total_orders, color: '#67c23a' },
-    { title: '已完成订单', value: ov.completed_orders, color: '#e6a23c' },
-    { title: '累计收入', value: `¥${Number(ov.total_revenue).toFixed(2)}`, color: '#f56c6c' },
-    { title: '库存预警', value: ov.low_stock_count, color: '#f0a020' },
-    { title: '完成率', value: ov.total_orders ? `${((ov.completed_orders / ov.total_orders) * 100).toFixed(1)}%` : '0%', color: '#909399' },
+    { title: '在售图书', value: `${ov.on_sale_books} / ${ov.total_books}`, color: '#1890FF' },
+    { title: '累计订单', value: ov.total_orders, color: '#2C5F2D' },
+    { title: '已完成订单', value: ov.completed_orders, color: '#4A7C4B' },
+    { title: '累计收入', value: `¥${Number(ov.total_revenue).toFixed(2)}`, color: '#C75B39' },
+    { title: '库存预警', value: ov.low_stock_count, color: '#FAAD14' },
+    { title: '完成率', value: ov.total_orders ? `${((ov.completed_orders / ov.total_orders) * 100).toFixed(1)}%` : '0%', color: '#52C41A' },
   ]
 })
 
@@ -96,8 +96,8 @@ function initCharts() {
     series: [{
       name: '收入', type: 'line', smooth: true,
       data: daily_data.map(d => Number(d.revenue).toFixed(2)),
-      itemStyle: { color: '#67c23a' },
-      areaStyle: { color: 'rgba(103, 194, 58, 0.1)' },
+      itemStyle: { color: '#2C5F2D' },
+      areaStyle: { color: 'rgba(44,95,45,0.1)' },
     }],
   })
 
@@ -128,7 +128,7 @@ function initCharts() {
     yAxis: { type: 'value', name: '销量' },
     series: [{
       type: 'bar', data: top_books.map(b => b.sales),
-      itemStyle: { color: '#409eff' },
+      itemStyle: { color: '#4A7C4B', borderRadius: [4, 4, 0, 0] },
       label: { show: true, position: 'top' },
     }],
   })
@@ -140,22 +140,31 @@ onMounted(fetchAnalytics)
 <style lang="scss" scoped>
 .analytics-view {}
 .overview-cards {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 .stat-card {
+  border-radius: 8px;
+  transition: box-shadow 0.3s, transform 0.3s;
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+  }
+
   .stat-content {
     text-align: center;
     padding: 8px 0;
   }
   .stat-value {
     font-size: 22px;
-    font-weight: bold;
-    color: #303133;
+    font-weight: 700;
+    color: #1A1A1A;
+    line-height: 1;
   }
   .stat-label {
     font-size: 13px;
-    color: #909399;
-    margin-top: 4px;
+    color: #666;
+    margin-top: 8px;
   }
 }
 .chart-row {

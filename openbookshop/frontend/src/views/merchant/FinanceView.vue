@@ -23,13 +23,13 @@
       <!-- 汇总 -->
       <el-row :gutter="16" class="summary-row">
         <el-col :span="8">
-          <el-statistic title="本页收入合计" :value="totalIncome" prefix="¥" :precision="2" value-style="color: #67c23a" />
+          <el-statistic title="本页收入合计" :value="totalIncome" prefix="¥" :precision="2" value-style="color: #52C41A" />
         </el-col>
         <el-col :span="8">
-          <el-statistic title="本页退款合计" :value="totalRefund" prefix="¥" :precision="2" value-style="color: #f56c6c" />
+          <el-statistic title="本页退款合计" :value="totalRefund" prefix="¥" :precision="2" value-style="color: #F5222D" />
         </el-col>
         <el-col :span="8">
-          <el-statistic title="流水总笔数" :value="total" value-style="color: #409eff" />
+          <el-statistic title="流水总笔数" :value="total" value-style="color: #1890FF" />
         </el-col>
       </el-row>
 
@@ -141,8 +141,8 @@ onMounted(fetchList)
   padding: 16px 0;
   border-bottom: 1px solid #eee;
 }
-.income-amount { color: #67c23a; font-weight: bold; }
-.refund-amount { color: #f56c6c; font-weight: bold; }
+.income-amount { color: #52C41A; font-weight: bold; }
+.refund-amount { color: #F5222D; font-weight: bold; }
 .order-no { font-family: monospace; font-size: 12px; }
 .pagination {
   margin-top: 20px;

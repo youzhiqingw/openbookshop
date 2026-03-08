@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="form-title">登录</h2>
+    <h2 class="form-title">欢迎登录</h2>
     <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
       <el-form-item label="用户名" prop="username">
         <el-input v-model="form.username" placeholder="请输入用户名" size="large" prefix-icon="User" />
@@ -21,7 +21,7 @@
           type="primary"
           size="large"
           :loading="loading"
-          style="width: 100%"
+          class="submit-btn"
           @click="handleLogin"
         >
           登录
@@ -85,17 +85,31 @@ function getDefaultRoute() {
   font-size: 22px;
   font-weight: 600;
   color: #1A1A1A;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   text-align: center;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 44px;
+  font-size: 16px;
+  background: #2C5F2D;
+  border-color: #2C5F2D;
+  border-radius: 6px;
+  letter-spacing: 1px;
+
+  &:hover { background: #4A7C4B; border-color: #4A7C4B; }
 }
 
 .form-footer {
   text-align: center;
-  margin-top: 16px;
+  margin-top: 20px;
   color: #666666;
+  font-size: 14px;
 
   a {
     color: #2C5F2D;
+    font-weight: 500;
     &:hover { text-decoration: underline; }
   }
 }

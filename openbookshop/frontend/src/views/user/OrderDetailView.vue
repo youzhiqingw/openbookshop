@@ -160,27 +160,41 @@ onMounted(fetchOrder)
   padding: 0 20px;
 }
 
-.back-btn { margin-bottom: 16px; }
+.back-btn {
+  margin-bottom: 16px;
+  color: #666;
+  font-size: 14px;
+  &:hover { color: #2C5F2D; }
+}
 
-.section-card { margin-bottom: 16px; }
+.section-card {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
 
 .card-header-row {
   display: flex;
   align-items: center;
   gap: 12px;
+  font-weight: 600;
+  color: #1A1A1A;
 }
 
 .price {
-  color: #e6a23c;
+  color: #C75B39;
   font-size: 18px;
+  font-weight: 700;
 }
 
 .address-snapshot {
   display: flex;
   gap: 12px;
   font-size: 14px;
+  align-items: center;
+  flex-wrap: wrap;
 
-  .addr-name { font-weight: 500; }
+  .addr-name { font-weight: 600; color: #1A1A1A; }
   .addr-phone { color: #666; }
 }
 
@@ -194,8 +208,8 @@ onMounted(fetchOrder)
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 8px 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 10px 0;
+  border-bottom: 1px solid #F5F5F5;
 
   &:last-child { border-bottom: none; }
 
@@ -203,7 +217,7 @@ onMounted(fetchOrder)
     width: 60px;
     height: 75px;
     flex-shrink: 0;
-    background: #f5f7fa;
+    background: #F5F5F5;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -215,22 +229,26 @@ onMounted(fetchOrder)
   }
 
   .item-info { flex: 1; }
-  .item-title { font-size: 14px; font-weight: 500; }
+  .item-title { font-size: 14px; font-weight: 500; color: #1A1A1A; margin-bottom: 4px; }
   .item-author { font-size: 12px; color: #999; }
   .item-price { color: #666; }
   .item-quantity { color: #999; }
-  .item-subtotal { font-weight: bold; color: #e6a23c; width: 80px; text-align: right; }
+  .item-subtotal { font-weight: 700; color: #C75B39; width: 80px; text-align: right; font-size: 15px; }
 }
 
 .total-row {
   text-align: right;
-  margin-top: 12px;
+  margin-top: 16px;
   font-size: 15px;
+  color: #666;
+  padding-top: 12px;
+  border-top: 1px solid #E5E5E5;
 }
 
 .action-row {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
+  margin-top: 4px;
 }
 </style>

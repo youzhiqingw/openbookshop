@@ -161,38 +161,63 @@ onMounted(loadAddresses)
 .address-page {
   max-width: 800px;
   margin: 24px auto;
+  padding: 0 20px;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  span {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1A1A1A;
+  }
 }
 
 .address-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .address-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  border: 1px solid #eee;
+  padding: 16px 20px;
+  border: 1px solid #E5E5E5;
   border-radius: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    border-color: #B5D1B6;
+    box-shadow: 0 2px 8px rgba(44,95,45,0.08);
+  }
+
+  .address-info {
+    flex: 1;
+  }
 
   .address-name {
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-weight: 500;
+    gap: 10px;
+    font-weight: 600;
     margin-bottom: 6px;
+    color: #1A1A1A;
 
-    .phone { color: #666; }
+    .phone { color: #666; font-weight: 400; }
   }
 
   .address-detail { color: #666; font-size: 14px; }
+
+  .address-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    margin-left: 16px;
+  }
 }
 </style>

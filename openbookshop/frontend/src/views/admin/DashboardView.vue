@@ -76,11 +76,11 @@ const overviewCards = computed(() => {
   if (!stats.value) return []
   const ov = stats.value.overview
   return [
-    { title: '注册用户', value: ov.total_users, icon: 'User', color: '#409eff' },
-    { title: '在营商家', value: ov.total_merchants, icon: 'Shop', color: '#67c23a' },
-    { title: '在售图书', value: ov.total_books, icon: 'Reading', color: '#e6a23c' },
-    { title: '库存预警', value: ov.low_stock_count, icon: 'Warning', color: '#f56c6c' },
-    { title: '平台总收入', value: `¥${Number(ov.total_revenue).toFixed(2)}`, icon: 'Wallet', color: '#909399' },
+    { title: '注册用户', value: ov.total_users, icon: 'User', color: '#1890FF' },
+    { title: '在营商家', value: ov.total_merchants, icon: 'Shop', color: '#2C5F2D' },
+    { title: '在售图书', value: ov.total_books, icon: 'Reading', color: '#4A7C4B' },
+    { title: '库存预警', value: ov.low_stock_count, icon: 'Warning', color: '#FAAD14' },
+    { title: '平台总收入', value: `¥${Number(ov.total_revenue).toFixed(2)}`, icon: 'Wallet', color: '#C75B39' },
   ]
 })
 
@@ -112,12 +112,14 @@ function initCharts() {
       {
         name: '订单数', type: 'line', smooth: true,
         data: daily_data.map(d => d.orders),
-        itemStyle: { color: '#409eff' },
+        itemStyle: { color: '#1890FF' },
+        areaStyle: { color: 'rgba(24,144,255,0.08)' },
       },
       {
         name: '收入(元)', type: 'line', smooth: true, yAxisIndex: 1,
         data: daily_data.map(d => Number(d.revenue).toFixed(2)),
-        itemStyle: { color: '#67c23a' },
+        itemStyle: { color: '#2C5F2D' },
+        areaStyle: { color: 'rgba(44,95,45,0.08)' },
       },
     ],
   })
@@ -149,7 +151,7 @@ function initCharts() {
     yAxis: { type: 'value', name: '销量' },
     series: [{
       type: 'bar', data: top_books.map(b => b.sales),
-      itemStyle: { color: '#e6a23c' },
+      itemStyle: { color: '#2C5F2D', borderRadius: [4, 4, 0, 0] },
       label: { show: true, position: 'top' },
     }],
   })
@@ -165,23 +167,50 @@ onMounted(() => {
   padding: 0;
 }
 .overview-cards {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 .stat-card {
+  border-radius: 8px;
+  transition: box-shadow 0.3s, transform 0.3s;
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+  }
+
   .stat-content {
     display: flex;
     align-items: center;
     gap: 16px;
+    padding: 4px 0;
+  }
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: currentColor;
+    opacity: 0.12;
+    flex-shrink: 0;
+    position: relative;
+
+    .el-icon {
+      position: absolute;
+      opacity: 1 / 0.12;
+    }
   }
   .stat-value {
     font-size: 24px;
-    font-weight: bold;
-    color: #303133;
+    font-weight: 700;
+    color: #1A1A1A;
+    line-height: 1;
   }
   .stat-label {
     font-size: 13px;
-    color: #909399;
-    margin-top: 4px;
+    color: #666;
+    margin-top: 6px;
   }
 }
 .chart-row {

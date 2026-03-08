@@ -1,25 +1,30 @@
 <template>
   <div class="book-list-page">
     <!-- Search & Filter -->
-    <el-card class="filter-card">
+    <div class="filter-bar">
       <el-row :gutter="16" align="middle">
-        <el-col :span="10">
+        <el-col :xs="24" :sm="10">
           <el-input
             v-model="searchQuery"
             placeholder="搜索书名、作者、ISBN…"
             clearable
+            size="large"
+            class="search-input"
             @keyup.enter="search"
           >
+            <template #prefix><el-icon><Search /></el-icon></template>
             <template #append>
               <el-button @click="search">搜索</el-button>
             </template>
           </el-input>
         </el-col>
-        <el-col :span="8">
+        <el-col :xs="12" :sm="8">
           <el-select
             v-model="selectedCategory"
             placeholder="全部分类"
             clearable
+            size="large"
+            style="width:100%"
             @change="search"
           >
             <el-option
@@ -30,8 +35,8 @@
             />
           </el-select>
         </el-col>
-        <el-col :span="6">
-          <el-select v-model="ordering" placeholder="排序" @change="search">
+        <el-col :xs="12" :sm="6">
+          <el-select v-model="ordering" placeholder="排序方式" size="large" style="width:100%" @change="search">
             <el-option label="最新上架" value="-created_at" />
             <el-option label="销量最高" value="-sales" />
             <el-option label="价格从低到高" value="price" />
@@ -39,7 +44,7 @@
           </el-select>
         </el-col>
       </el-row>
-    </el-card>
+    </div>
 
     <!-- Book Grid -->
     <div v-loading="loading" class="book-grid">
@@ -174,9 +179,22 @@ onMounted(() => {
   padding: 24px 20px;
 }
 
-.filter-card {
-  margin-bottom: 24px;
+.filter-bar {
+  background: #fff;
   border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+  .search-input {
+    :deep(.el-input-group__append) {
+      background: #2C5F2D;
+      color: #fff;
+      border-color: #2C5F2D;
+      cursor: pointer;
+      &:hover { background: #4A7C4B; }
+    }
+  }
 }
 
 .book-grid {
@@ -189,6 +207,7 @@ onMounted(() => {
   border-radius: 8px;
   overflow: hidden;
   transition: box-shadow 0.3s, transform 0.3s;
+  border: none;
 
   &:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
@@ -211,12 +230,17 @@ onMounted(() => {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.3s;
   }
 
   .cover-placeholder {
     font-size: 48px;
     color: #ccc;
   }
+}
+
+.book-card:hover .cover-img {
+  transform: scale(1.04);
 }
 
 .book-info {
@@ -264,6 +288,9 @@ onMounted(() => {
 
   .cart-btn {
     width: 100%;
+    background: #2C5F2D;
+    border-color: #2C5F2D;
+    &:hover:not(:disabled) { background: #4A7C4B; border-color: #4A7C4B; }
   }
 }
 
@@ -271,5 +298,6 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   margin-top: 24px;
+  padding: 16px 0;
 }
 </style>
