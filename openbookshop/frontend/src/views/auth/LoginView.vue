@@ -83,7 +83,8 @@ function getDefaultRoute() {
 <style lang="scss" scoped>
 .form-title {
   font-size: 22px;
-  color: #333;
+  font-weight: 600;
+  color: #1A1A1A;
   margin-bottom: 24px;
   text-align: center;
 }
@@ -91,10 +92,10 @@ function getDefaultRoute() {
 .form-footer {
   text-align: center;
   margin-top: 16px;
-  color: #666;
+  color: #666666;
 
   a {
-    color: #409eff;
+    color: #2C5F2D;
     &:hover { text-decoration: underline; }
   }
 }
