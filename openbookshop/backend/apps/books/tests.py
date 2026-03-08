@@ -4,8 +4,9 @@ from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 
 from apps.merchants.models import Merchant
+from apps.orders.models import Order, OrderItem
 
-from .models import Book, Category
+from .models import Book, Category, Review
 
 User = get_user_model()
 
@@ -128,4 +129,254 @@ class BooksAPITestCase(APITestCase):
     def test_non_admin_cannot_access_admin_books(self):
         self._auth(self.customer)
         resp = self.client.get('/api/v1/books/admin/')
+        self.assertEqual(resp.status_code, 403)
+
+
+class ReviewAPITestCase(APITestCase):
+    """Tests for the review system."""
+
+    def setUp(self):
+        self.merchant_user = User.objects.create_user(
+            username='rev_merchant', password='pass123', role='merchant'
+        )
+        self.merchant = Merchant.objects.create(
+            user=self.merchant_user, store_name='Rev Shop', status='approved'
+        )
+        self.admin_user = User.objects.create_user(
+            username='rev_admin', password='pass123', role='admin', is_staff=True
+        )
+        self.customer = User.objects.create_user(
+            username='rev_customer', password='pass123', role='customer'
+        )
+        self.category = Category.objects.create(name='评论分类')
+        self.book = Book.objects.create(
+            merchant=self.merchant, category=self.category,
+            title='Review Test Book', author='Author',
+            price=Decimal('30.00'), stock=10, is_on_sale=True,
+        )
+        # Create a completed order for the customer
+        self.order = Order.objects.create(
+            user=self.customer,
+            total_amount=Decimal('30.00'),
+            address_snapshot={
+                'name': '测试用户', 'phone': '13800000000',
+                'province': '广东', 'city': '深圳', 'district': '南山', 'detail': '某处',
+            },
+            status='completed',
+        )
+        OrderItem.objects.create(
+            order=self.order, book=self.book, merchant=self.merchant,
+            book_title=self.book.title, book_author=self.book.author,
+            price=self.book.price, quantity=1, subtotal=self.book.price,
+        )
+
+    # ------------------------------------------------------------------
+    # Public review list
+    # ------------------------------------------------------------------
+
+    def test_public_can_list_approved_reviews(self):
+        Review.objects.create(
+            user=self.customer, book=self.book, order=self.order,
+            rating=5, content='非常好读的一本书！',
+            is_approved=True,
+        )
+        resp = self.client.get(f'/api/v1/books/{self.book.id}/reviews/')
+        self.assertEqual(resp.status_code, 200)
+        results = resp.json()['data']['results']
+        self.assertEqual(len(results), 1)
+
+    def test_unapproved_reviews_not_visible_publicly(self):
+        Review.objects.create(
+            user=self.customer, book=self.book, order=self.order,
+            rating=2, content='垃圾书籍差评！',
+            is_approved=False,
+        )
+        resp = self.client.get(f'/api/v1/books/{self.book.id}/reviews/')
+        self.assertEqual(resp.status_code, 200)
+        results = resp.json()['data']['results']
+        self.assertEqual(len(results), 0)
+
+    # ------------------------------------------------------------------
+    # Create review
+    # ------------------------------------------------------------------
+
+    def test_customer_can_create_review(self):
+        self.client.force_authenticate(user=self.customer)
+        resp = self.client.post(
+            f'/api/v1/books/{self.book.id}/reviews/create/',
+            {'rating': 5, 'content': '非常好的图书，推荐购买！', 'order_id': self.order.id},
+            format='json',
+        )
+        self.assertIn(resp.status_code, [200, 201])
+        self.assertTrue(Review.objects.filter(user=self.customer, book=self.book).exists())
+
+    def test_sensitive_content_not_auto_approved(self):
+        self.client.force_authenticate(user=self.customer)
+        resp = self.client.post(
+            f'/api/v1/books/{self.book.id}/reviews/create/',
+            {'rating': 1, 'content': '这是垃圾书，骗子！', 'order_id': self.order.id},
+            format='json',
+        )
+        self.assertIn(resp.status_code, [200, 201])
+        review = Review.objects.get(user=self.customer, book=self.book)
+        self.assertTrue(review.is_sensitive)
+        self.assertFalse(review.is_approved)
+
+    def test_unauthenticated_cannot_create_review(self):
+        resp = self.client.post(
+            f'/api/v1/books/{self.book.id}/reviews/create/',
+            {'rating': 5, 'content': '好书推荐购买！', 'order_id': self.order.id},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 401)
+
+    def test_cannot_review_without_purchase(self):
+        no_order_user = User.objects.create_user(
+            username='no_order_user', password='pass123', role='customer'
+        )
+        self.client.force_authenticate(user=no_order_user)
+        resp = self.client.post(
+            f'/api/v1/books/{self.book.id}/reviews/create/',
+            {'rating': 4, 'content': '感觉还不错的一本书！'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 400)
+
+    def test_cannot_review_twice_same_order(self):
+        Review.objects.create(
+            user=self.customer, book=self.book, order=self.order,
+            rating=5, content='很好的书推荐阅读！', is_approved=True,
+        )
+        self.client.force_authenticate(user=self.customer)
+        resp = self.client.post(
+            f'/api/v1/books/{self.book.id}/reviews/create/',
+            {'rating': 4, 'content': '又评一次这本好书！', 'order_id': self.order.id},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 400)
+
+    # ------------------------------------------------------------------
+    # Merchant review management
+    # ------------------------------------------------------------------
+
+    def test_merchant_can_list_own_book_reviews(self):
+        Review.objects.create(
+            user=self.customer, book=self.book, order=self.order,
+            rating=5, content='好书值得购买！', is_approved=True,
+        )
+        self.client.force_authenticate(user=self.merchant_user)
+        resp = self.client.get('/api/v1/books/merchant/reviews/')
+        self.assertEqual(resp.status_code, 200)
+        results = resp.json()['data']['results']
+        self.assertEqual(len(results), 1)
+
+    def test_merchant_can_reply_review(self):
+        review = Review.objects.create(
+            user=self.customer, book=self.book, order=self.order,
+            rating=4, content='还不错的书籍！', is_approved=True,
+        )
+        self.client.force_authenticate(user=self.merchant_user)
+        resp = self.client.post(
+            f'/api/v1/books/merchant/reviews/{review.id}/reply/',
+            {'merchant_reply': '感谢您的评论，欢迎再次光临！'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        review.refresh_from_db()
+        self.assertEqual(review.merchant_reply, '感谢您的评论，欢迎再次光临！')
+
+    def test_merchant_cannot_reply_other_book_review(self):
+        other_user = User.objects.create_user('other_m', password='pass', role='merchant')
+        other_merchant = Merchant.objects.create(
+            user=other_user, store_name='Other', status='approved'
+        )
+        other_book = Book.objects.create(
+            merchant=other_merchant, category=self.category, title='Other Book', author='X',
+            price=Decimal('10.00'), stock=5, is_on_sale=True,
+        )
+        other_order = Order.objects.create(
+            user=self.customer,
+            total_amount=Decimal('10.00'),
+            address_snapshot={
+                'name': '测试', 'phone': '13800000001',
+                'province': '北京', 'city': '北京', 'district': '海淀', 'detail': '某处',
+            },
+            status='completed',
+        )
+        OrderItem.objects.create(
+            order=other_order, book=other_book, merchant=other_merchant,
+            book_title=other_book.title, book_author=other_book.author,
+            price=other_book.price, quantity=1, subtotal=other_book.price,
+        )
+        other_review = Review.objects.create(
+            user=self.customer, book=other_book, order=other_order,
+            rating=3, content='还可以的书籍！', is_approved=True,
+        )
+        self.client.force_authenticate(user=self.merchant_user)
+        resp = self.client.post(
+            f'/api/v1/books/merchant/reviews/{other_review.id}/reply/',
+            {'merchant_reply': '感谢评论！'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 404)
+
+    # ------------------------------------------------------------------
+    # Admin review management
+    # ------------------------------------------------------------------
+
+    def test_admin_can_list_all_reviews(self):
+        Review.objects.create(
+            user=self.customer, book=self.book, order=self.order,
+            rating=5, content='非常推荐这本好书！', is_approved=True,
+        )
+        self.client.force_authenticate(user=self.admin_user)
+        resp = self.client.get('/api/v1/books/admin/reviews/')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_admin_can_approve_review(self):
+        review = Review.objects.create(
+            user=self.customer, book=self.book, order=self.order,
+            rating=2, content='垃圾骗子差评！',
+            is_sensitive=True, is_approved=False,
+        )
+        self.client.force_authenticate(user=self.admin_user)
+        resp = self.client.post(
+            f'/api/v1/books/admin/reviews/{review.id}/approve/',
+            {'action': 'approve'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        review.refresh_from_db()
+        self.assertTrue(review.is_approved)
+
+    def test_admin_can_reject_review(self):
+        review = Review.objects.create(
+            user=self.customer, book=self.book, order=self.order,
+            rating=5, content='好书推荐！', is_approved=True,
+        )
+        self.client.force_authenticate(user=self.admin_user)
+        resp = self.client.post(
+            f'/api/v1/books/admin/reviews/{review.id}/approve/',
+            {'action': 'reject'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        review.refresh_from_db()
+        self.assertFalse(review.is_approved)
+
+    def test_admin_filter_by_sensitive(self):
+        Review.objects.create(
+            user=self.customer, book=self.book, order=self.order,
+            rating=1, content='垃圾骗子！',
+            is_sensitive=True, is_approved=False,
+        )
+        self.client.force_authenticate(user=self.admin_user)
+        resp = self.client.get('/api/v1/books/admin/reviews/', {'is_sensitive': 'true'})
+        self.assertEqual(resp.status_code, 200)
+        results = resp.json()['data']['results']
+        self.assertTrue(all(r['is_sensitive'] for r in results))
+
+    def test_non_admin_cannot_access_admin_reviews(self):
+        self.client.force_authenticate(user=self.customer)
+        resp = self.client.get('/api/v1/books/admin/reviews/')
         self.assertEqual(resp.status_code, 403)
