@@ -27,7 +27,7 @@ export const adminApi = {
   getBookList: (params) => request.get('/books/admin/', { params }),
   updateBook: (id, data) => request.patch(`/books/admin/${id}/`, data),
   deleteBook: (id) => request.delete(`/books/admin/${id}/`),
-  getLowStock: () => request.get('/books/admin/low-stock/'),
+  getLowStock: (params) => request.get('/books/admin/low-stock/', { params }),
   // Categories
   getCategories: () => request.get('/books/categories/'),
   createCategory: (data) => request.post('/books/admin/categories/', data),
@@ -52,7 +52,7 @@ export const merchantApi = {
   createBook: (data) => request.post('/books/merchant/create/', data),
   updateBook: (id, data) => request.patch(`/books/merchant/${id}/`, data),
   deleteBook: (id) => request.delete(`/books/merchant/${id}/`),
-  getLowStock: () => request.get('/books/merchant/low-stock/'),
+  getLowStock: (params) => request.get('/books/merchant/low-stock/', { params }),
   // Orders
   getOrderList: (params) => request.get('/orders/merchant/', { params }),
   shipOrder: (id) => request.post(`/orders/merchant/${id}/ship/`),

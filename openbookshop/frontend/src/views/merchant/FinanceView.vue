@@ -4,6 +4,19 @@
       <template #header>
         <div class="card-header">
           <span>收支记录</span>
+          <div class="filters">
+            <el-date-picker
+              v-model="dateRange"
+              type="daterange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              value-format="YYYY-MM-DD"
+              clearable
+              style="width: 240px;"
+              @change="handleFilter"
+            />
+          </div>
         </div>
       </template>
 
@@ -72,6 +85,7 @@ const loading = ref(false)
 const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
+const dateRange = ref(null)
 
 const totalIncome = computed(() =>
   list.value.filter(r => r.type === 'income').reduce((s, r) => s + Number(r.amount), 0)
@@ -80,12 +94,19 @@ const totalRefund = computed(() =>
   list.value.filter(r => r.type === 'refund').reduce((s, r) => s + Number(r.amount), 0)
 )
 
+function handleFilter() {
+  page.value = 1
+  fetchList()
+}
+
 async function fetchList() {
   loading.value = true
   try {
     const params = { page: page.value, page_size: pageSize.value }
+    if (dateRange.value && dateRange.value[0]) params.date_from = dateRange.value[0]
+    if (dateRange.value && dateRange.value[1]) params.date_to = dateRange.value[1]
     const res = await merchantApi.getFinanceList(params)
-    const data = res.data.data
+    const data = res.data
     list.value = data.results
     total.value = data.total
   } catch {
@@ -109,6 +130,11 @@ onMounted(fetchList)
   display: flex;
   justify-content: space-between;
   align-items: center;
+  .filters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
 }
 .summary-row {
   margin-bottom: 20px;

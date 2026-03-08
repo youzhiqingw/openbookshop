@@ -5,7 +5,18 @@
         <div class="card-header">
           <span>财务流水</span>
           <div class="filters">
-            <el-select v-model="filterType" placeholder="收支类型" clearable style="width: 140px;" @change="fetchList">
+            <el-date-picker
+              v-model="dateRange"
+              type="daterange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              value-format="YYYY-MM-DD"
+              clearable
+              style="width: 240px;"
+              @change="handleFilter"
+            />
+            <el-select v-model="filterType" placeholder="收支类型" clearable style="width: 140px;" @change="handleFilter">
               <el-option label="全部" value="" />
               <el-option label="订单收入" value="income" />
               <el-option label="退款支出" value="refund" />
@@ -81,23 +92,29 @@ const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 const filterType = ref('')
+const dateRange = ref(null)
 
-const totalIncome = computed(() => {
-  // We show this based on current page data; ideally from backend summary
-  // For now compute from all loaded records
-  return list.value.filter(r => r.type === 'income').reduce((s, r) => s + Number(r.amount), 0)
-})
+const totalIncome = computed(() =>
+  list.value.filter(r => r.type === 'income').reduce((s, r) => s + Number(r.amount), 0)
+)
 const totalRefund = computed(() =>
   list.value.filter(r => r.type === 'refund').reduce((s, r) => s + Number(r.amount), 0)
 )
+
+function handleFilter() {
+  page.value = 1
+  fetchList()
+}
 
 async function fetchList() {
   loading.value = true
   try {
     const params = { page: page.value, page_size: pageSize.value }
     if (filterType.value) params.type = filterType.value
+    if (dateRange.value && dateRange.value[0]) params.date_from = dateRange.value[0]
+    if (dateRange.value && dateRange.value[1]) params.date_to = dateRange.value[1]
     const res = await adminApi.getFinanceList(params)
-    const data = res.data.data
+    const data = res.data
     list.value = data.results
     total.value = data.total
   } catch {
@@ -121,6 +138,11 @@ onMounted(fetchList)
   display: flex;
   justify-content: space-between;
   align-items: center;
+  .filters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
 }
 .summary-row {
   margin-bottom: 20px;

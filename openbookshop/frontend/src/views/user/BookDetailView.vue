@@ -179,7 +179,7 @@ async function fetchBook() {
 async function fetchReviews() {
   try {
     const res = await bookApi.getReviews(route.params.id, { page: reviewPage.value, page_size: pageSize })
-    const data = res.data.data
+    const data = res.data
     reviews.value = data.results
     total.value = data.total
   } catch {

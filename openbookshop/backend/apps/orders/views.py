@@ -504,6 +504,12 @@ class AdminFinanceListView(ListAPIView):
         merchant_id = self.request.query_params.get('merchant')
         if merchant_id:
             queryset = queryset.filter(merchant_id=merchant_id)
+        date_from = self.request.query_params.get('date_from')
+        if date_from:
+            queryset = queryset.filter(created_at__date__gte=date_from)
+        date_to = self.request.query_params.get('date_to')
+        if date_to:
+            queryset = queryset.filter(created_at__date__lte=date_to)
         return queryset
 
 
@@ -514,9 +520,16 @@ class MerchantFinanceListView(ListAPIView):
     permission_classes = [IsAuthenticated, IsMerchantApproved]
 
     def get_queryset(self):
-        return FinanceRecord.objects.filter(
+        queryset = FinanceRecord.objects.filter(
             merchant=self.request.user.merchant
         ).select_related('order', 'user').order_by('-created_at')
+        date_from = self.request.query_params.get('date_from')
+        if date_from:
+            queryset = queryset.filter(created_at__date__gte=date_from)
+        date_to = self.request.query_params.get('date_to')
+        if date_to:
+            queryset = queryset.filter(created_at__date__lte=date_to)
+        return queryset
 
 
 # ---------------------------------------------------------------------------
@@ -541,9 +554,11 @@ class AdminStatisticsView(APIView):
         thirty_days_ago = today - timedelta(days=29)
 
         # 基础统计
+        from django.db.models import F
         total_users = User.objects.filter(role='customer').count()
         total_merchants = Merchant.objects.filter(status='approved').count()
         total_books = Book.objects.filter(is_on_sale=True).count()
+        low_stock_count = Book.objects.filter(stock__lte=F('warning_stock')).count()
         total_orders = Order.objects.count()
         total_revenue = FinanceRecord.objects.filter(type='income').aggregate(
             total=Sum('amount')
@@ -599,6 +614,7 @@ class AdminStatisticsView(APIView):
                 'total_users': total_users,
                 'total_merchants': total_merchants,
                 'total_books': total_books,
+                'low_stock_count': low_stock_count,
                 'total_orders': total_orders,
                 'total_revenue': float(total_revenue),
             },
@@ -625,8 +641,12 @@ class MerchantAnalyticsView(APIView):
         thirty_days_ago = today - timedelta(days=29)
 
         # 商家图书统计
+        from django.db.models import F
         total_books = Book.objects.filter(merchant=merchant).count()
         on_sale_books = Book.objects.filter(merchant=merchant, is_on_sale=True).count()
+        low_stock_count = Book.objects.filter(
+            merchant=merchant, stock__lte=F('warning_stock')
+        ).count()
 
         # 商家相关订单
         merchant_order_ids = OrderItem.objects.filter(
@@ -680,6 +700,7 @@ class MerchantAnalyticsView(APIView):
             'overview': {
                 'total_books': total_books,
                 'on_sale_books': on_sale_books,
+                'low_stock_count': low_stock_count,
                 'total_orders': total_orders,
                 'completed_orders': completed_orders,
                 'total_revenue': float(total_revenue),

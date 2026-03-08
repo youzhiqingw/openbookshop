@@ -33,6 +33,10 @@
           <el-icon><Wallet /></el-icon>
           <span>财务流水</span>
         </el-menu-item>
+        <el-menu-item index="/admin/stock-warning">
+          <el-icon><Warning /></el-icon>
+          <span>库存预警</span>
+        </el-menu-item>
         <el-menu-item index="/admin/logs">
           <el-icon><Document /></el-icon>
           <span>操作日志</span>
@@ -86,6 +90,7 @@ const titleMap = {
   '/admin/books': '图书管理',
   '/admin/reviews': '评论审核',
   '/admin/finance': '财务流水',
+  '/admin/stock-warning': '库存预警',
   '/admin/logs': '操作日志',
 }
 const currentTitle = computed(() => titleMap[route.path] || '管理后台')

@@ -1,7 +1,7 @@
 <template>
   <div class="analytics-view">
     <el-row :gutter="16" class="overview-cards">
-      <el-col :span="8" v-for="item in overviewCards" :key="item.title">
+      <el-col :span="4" v-for="item in overviewCards" :key="item.title">
         <el-card shadow="hover" class="stat-card" :style="{ borderTop: `4px solid ${item.color}` }">
           <div class="stat-content">
             <div class="stat-value">{{ item.value }}</div>
@@ -68,6 +68,7 @@ const overviewCards = computed(() => {
     { title: '累计订单', value: ov.total_orders, color: '#67c23a' },
     { title: '已完成订单', value: ov.completed_orders, color: '#e6a23c' },
     { title: '累计收入', value: `¥${Number(ov.total_revenue).toFixed(2)}`, color: '#f56c6c' },
+    { title: '库存预警', value: ov.low_stock_count, color: '#f0a020' },
     { title: '完成率', value: ov.total_orders ? `${((ov.completed_orders / ov.total_orders) * 100).toFixed(1)}%` : '0%', color: '#909399' },
   ]
 })
@@ -75,7 +76,7 @@ const overviewCards = computed(() => {
 async function fetchAnalytics() {
   try {
     const res = await merchantApi.getAnalytics()
-    analytics.value = res.data.data
+    analytics.value = res.data
     initCharts()
   } catch {
     ElMessage.error('获取统计数据失败')

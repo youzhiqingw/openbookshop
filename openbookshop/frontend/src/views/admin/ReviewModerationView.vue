@@ -105,7 +105,7 @@ async function fetchList() {
     if (filterSensitive.value !== '') params.is_sensitive = filterSensitive.value
     if (searchText.value) params.search = searchText.value
     const res = await adminApi.getReviewList(params)
-    const data = res.data.data
+    const data = res.data
     list.value = data.results
     total.value = data.total
   } catch {
