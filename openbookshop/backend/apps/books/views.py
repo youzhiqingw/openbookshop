@@ -254,6 +254,8 @@ class BookReviewCreateView(APIView):
         qs = Review.objects.filter(user=request.user, book=book)
         if order:
             qs = qs.filter(order=order)
+        else:
+            qs = qs.filter(order__isnull=True)
         if qs.exists():
             return error_response(message="您已对该书（订单）评论过了")
 

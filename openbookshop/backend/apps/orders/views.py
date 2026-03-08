@@ -1,3 +1,4 @@
+from collections import defaultdict
 from decimal import Decimal
 
 from django.db import transaction
@@ -333,7 +334,6 @@ class OrderPayCallbackView(APIView):
             )
 
             # 创建财务流水记录（按商家分组）
-            from collections import defaultdict
             merchant_amounts = defaultdict(Decimal)
             for item in order.items.select_related('merchant').all():
                 if item.merchant:

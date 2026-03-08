@@ -10,13 +10,13 @@
       <!-- 汇总 -->
       <el-row :gutter="16" class="summary-row">
         <el-col :span="8">
-          <el-statistic title="累计收入" :value="totalIncome" prefix="¥" :precision="2" value-style="color: #67c23a" />
+          <el-statistic title="本页收入合计" :value="totalIncome" prefix="¥" :precision="2" value-style="color: #67c23a" />
         </el-col>
         <el-col :span="8">
-          <el-statistic title="退款合计" :value="totalRefund" prefix="¥" :precision="2" value-style="color: #f56c6c" />
+          <el-statistic title="本页退款合计" :value="totalRefund" prefix="¥" :precision="2" value-style="color: #f56c6c" />
         </el-col>
         <el-col :span="8">
-          <el-statistic title="流水笔数" :value="total" value-style="color: #409eff" />
+          <el-statistic title="流水总笔数" :value="total" value-style="color: #409eff" />
         </el-col>
       </el-row>
 
