@@ -99,7 +99,6 @@ onMounted(fetchData)
 </script>
 
 <style lang="scss" scoped>
-.stock-warning-view {}
 .card-header {
   display: flex;
   justify-content: space-between;
