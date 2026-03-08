@@ -81,12 +81,15 @@ async function handleCommand(command) {
 
 .header {
   background: #fff;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #E5E5E5;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  height: 60px;
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 
   .header-left {
     display: flex;
@@ -95,16 +98,36 @@ async function handleCommand(command) {
   }
 
   .logo {
-    font-size: 20px;
-    font-weight: bold;
-    color: #409eff;
+    font-size: 22px;
+    font-weight: 700;
+    color: #2C5F2D;
     cursor: pointer;
     white-space: nowrap;
+    letter-spacing: 0.5px;
   }
 
   .nav-menu {
     border-bottom: none;
-    height: 60px;
+    height: 64px;
+
+    :deep(.el-menu-item) {
+      font-size: 14px;
+      color: #333333;
+      border-bottom: 2px solid transparent;
+      transition: color 0.3s, border-color 0.3s;
+
+      &:hover {
+        color: #2C5F2D !important;
+        background-color: transparent !important;
+      }
+
+      &.is-active {
+        color: #2C5F2D !important;
+        border-bottom-color: #2C5F2D !important;
+        font-weight: 500;
+        background-color: transparent !important;
+      }
+    }
   }
 
   .cart-badge {
@@ -116,7 +139,9 @@ async function handleCommand(command) {
     align-items: center;
     gap: 8px;
     cursor: pointer;
-    color: #333;
+    color: #333333;
+
+    &:hover { color: #2C5F2D; }
   }
 }
 </style>

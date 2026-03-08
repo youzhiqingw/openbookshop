@@ -171,11 +171,12 @@ onMounted(() => {
 .book-list-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 24px 20px;
 }
 
 .filter-card {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  border-radius: 8px;
 }
 
 .book-grid {
@@ -183,11 +184,16 @@ onMounted(() => {
 }
 
 .book-card {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   cursor: pointer;
-  transition: transform 0.2s;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow 0.3s, transform 0.3s;
 
-  &:hover { transform: translateY(-4px); }
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+  }
 
   :deep(.el-card__body) { padding: 0; }
 }
@@ -196,7 +202,7 @@ onMounted(() => {
   width: 100%;
   height: 180px;
   overflow: hidden;
-  background: #f5f7fa;
+  background: #F5F5F5;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -209,41 +215,50 @@ onMounted(() => {
 
   .cover-placeholder {
     font-size: 48px;
-    color: #ddd;
+    color: #ccc;
   }
 }
 
 .book-info {
-  padding: 12px;
+  padding: 14px;
 
   .book-title {
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
+    color: #1A1A1A;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
+    min-height: 40px;
   }
 
   .book-author {
     font-size: 12px;
-    color: #999;
-    margin-bottom: 8px;
+    color: #666666;
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .book-meta {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
+    align-items: center;
+    margin-bottom: 10px;
 
     .price {
-      color: #e6a23c;
-      font-weight: bold;
+      font-size: 16px;
+      font-weight: 700;
+      color: #C75B39;
     }
 
     .sales {
       font-size: 12px;
-      color: #999;
+      color: #999999;
     }
   }
 
@@ -255,6 +270,6 @@ onMounted(() => {
 .pagination-wrap {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 24px;
 }
 </style>

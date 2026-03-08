@@ -15,7 +15,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2C5F2D 0%, #4A7C4B 50%, #E8F5E9 100%);
 }
 
 .auth-card {
@@ -32,7 +32,8 @@
 
   h1 {
     font-size: 28px;
-    color: #333;
+    font-weight: 700;
+    color: #2C5F2D;
   }
 }
 </style>
