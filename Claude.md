@@ -42,7 +42,7 @@
 1. Week1: 基础架构、认证体系、权限控制
 2. Week2-3: 图书/订单/购物车核心流程、模拟支付
 3. Week4: 三端功能完善（管理端/商家端/用户端）
-4. Week5: 数据统计(ECharts)、库存预警、敏感词过滤、日志财务
+4. Week5: 数据统计(ECharts)、库存预警、日志财务
 5. Week6: 测试优化、论文撰写
 
 ### 关键实现细节
@@ -64,7 +64,6 @@ class MockPaymentService:
         pass
 ```
 
-
 #### 商家数据隔离
 
 所有商家端查询必须添加
@@ -76,13 +75,8 @@ queryset = Book.objects.filter(merchant=request.user.merchant)
 #### 库存预警逻辑
 
 - 超级管理员: 可查看全平台预警，设置全局阈值
-
 - 商家: 仅查看/设置自己商品的预警值
-
 - 触发条件: `current_stock <= warning_stock`
-
-  
-
   #### 常用命令
 
 ```
@@ -101,5 +95,5 @@ cd frontend && npm run build
 - 所有资金操作记录财务流水(FinanceRecord)
 - 所有操作记录日志(OperationLog)
 - 用户地址最多5条，数据库层限制
-- 分类支持两级，使用`parent`自关联
+- 分类支持两级，使用 `parent`自关联
 - 评论需审核后公开，商家可回复

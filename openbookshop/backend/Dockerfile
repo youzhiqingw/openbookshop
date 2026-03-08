@@ -17,14 +17,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # 使用国内镜像加速 pip 安装（先复制 requirements.txt 利用 Docker 层缓存）
 COPY requirements.txt .
-RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt \
-    && pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple gunicorn
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir gunicorn
 
 # 复制项目代码
 COPY . .
 
-# 复制并赋予执行权限给启动脚本
-RUN chmod +x entrypoint.sh
+# 修复 Windows CRLF 换行符并赋予执行权限
+RUN sed -i 's/\r//' entrypoint.sh && chmod +x entrypoint.sh
 
 # 暴露端口
 EXPOSE 8000

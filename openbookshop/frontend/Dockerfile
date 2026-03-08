@@ -4,9 +4,6 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# 使用国内 npm 镜像加速
-RUN npm config set registry https://registry.npmmirror.com
-
 # 先复制 package.json 利用 Docker 层缓存
 COPY package.json package-lock.json* ./
 RUN npm install
