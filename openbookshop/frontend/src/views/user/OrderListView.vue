@@ -150,7 +150,11 @@ function onTabChange() {
 }
 
 async function cancelOrder(order) {
-  await ElMessageBox.confirm('确定要取消此订单吗？', '提示', { type: 'warning' })
+  try {
+    await ElMessageBox.confirm('确定要取消此订单吗？', '提示', { type: 'warning' })
+  } catch {
+    return
+  }
   try {
     await orderApi.cancelOrder(order.id)
     ElMessage.success('订单已取消')
@@ -161,7 +165,11 @@ async function cancelOrder(order) {
 }
 
 async function confirmReceived(order) {
-  await ElMessageBox.confirm('确认已收到商品？', '提示', { type: 'warning' })
+  try {
+    await ElMessageBox.confirm('确认已收到商品？', '提示', { type: 'warning' })
+  } catch {
+    return
+  }
   try {
     await orderApi.confirmReceived(order.id)
     ElMessage.success('确认收货成功')

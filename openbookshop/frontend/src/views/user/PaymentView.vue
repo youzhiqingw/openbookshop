@@ -138,7 +138,11 @@ async function confirmPay() {
 }
 
 async function cancelOrder() {
-  await ElMessageBox.confirm('确定要取消此订单吗？', '提示', { type: 'warning' })
+  try {
+    await ElMessageBox.confirm('确定要取消此订单吗？', '提示', { type: 'warning' })
+  } catch {
+    return
+  }
   try {
     await orderApi.cancelOrder(route.params.id)
     ElMessage.success('订单已取消')

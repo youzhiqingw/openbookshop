@@ -21,7 +21,7 @@ export const useCartStore = defineStore('cart', () => {
       const res = await orderApi.getCart()
       items.value = res.results || res || []
     } catch {
-      // silent fail
+      items.value = []
     } finally {
       loading.value = false
     }
@@ -63,7 +63,7 @@ export const useCartStore = defineStore('cart', () => {
       await orderApi.clearCart()
       items.value = []
     } catch {
-      // silent
+      ElMessage.error('清空购物车失败')
     }
   }
 

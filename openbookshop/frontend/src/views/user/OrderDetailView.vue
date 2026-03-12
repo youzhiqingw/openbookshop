@@ -114,7 +114,11 @@ async function fetchOrder() {
 }
 
 async function cancelOrder() {
-  await ElMessageBox.confirm('确定要取消此订单吗？', '提示', { type: 'warning' })
+  try {
+    await ElMessageBox.confirm('确定要取消此订单吗？', '提示', { type: 'warning' })
+  } catch {
+    return
+  }
   try {
     await orderApi.cancelOrder(order.value.id)
     ElMessage.success('订单已取消')
@@ -125,7 +129,11 @@ async function cancelOrder() {
 }
 
 async function confirmReceived() {
-  await ElMessageBox.confirm('确认已收到商品？', '提示', { type: 'warning' })
+  try {
+    await ElMessageBox.confirm('确认已收到商品？', '提示', { type: 'warning' })
+  } catch {
+    return
+  }
   try {
     await orderApi.confirmReceived(order.value.id)
     ElMessage.success('确认收货成功')

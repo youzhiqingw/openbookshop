@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, get_user_model
+from django.db import transaction
 from rest_framework import filters, status
 from rest_framework.generics import (
     CreateAPIView, ListAPIView, RetrieveUpdateAPIView, UpdateAPIView,
@@ -144,14 +145,16 @@ class AddressViewSet(ModelViewSet):
         return Address.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        address = serializer.save(user=self.request.user)
-        if address.is_default:
-            Address.objects.filter(user=self.request.user).exclude(pk=address.pk).update(is_default=False)
+        with transaction.atomic():
+            address = serializer.save(user=self.request.user)
+            if address.is_default:
+                Address.objects.filter(user=self.request.user).exclude(pk=address.pk).update(is_default=False)
 
     def perform_update(self, serializer):
-        address = serializer.save()
-        if address.is_default:
-            Address.objects.filter(user=self.request.user).exclude(pk=address.pk).update(is_default=False)
+        with transaction.atomic():
+            address = serializer.save()
+            if address.is_default:
+                Address.objects.filter(user=self.request.user).exclude(pk=address.pk).update(is_default=False)
 
 
 class AdminUserListView(ListAPIView):
