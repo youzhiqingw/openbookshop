@@ -1,6 +1,6 @@
 <template>
   <div class="merchant-reviews-view">
-    <el-card shadow="never">
+    <el-card shadow="never" class="main-card">
       <template #header>
         <div class="card-header">
           <span>图书评论</span>
@@ -139,7 +139,10 @@ onMounted(fetchList)
 </script>
 
 <style lang="scss" scoped>
-.merchant-reviews-view {}
+.main-card {
+  border-radius: 12px !important;
+  :deep(.el-card__header) { padding: 14px 20px; }
+}
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -152,7 +155,7 @@ onMounted(fetchList)
 .review-preview {
   background: #f5f7fa;
   padding: 12px 16px;
-  border-radius: 4px;
+  border-radius: 8px;
   p { margin: 6px 0; font-size: 14px; }
 }
 .pagination {

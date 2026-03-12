@@ -1,6 +1,6 @@
 <template>
   <div class="finance-view">
-    <el-card shadow="never">
+    <el-card shadow="never" class="main-card">
       <template #header>
         <div class="card-header">
           <span>财务流水</span>
@@ -133,7 +133,10 @@ onMounted(fetchList)
 </script>
 
 <style lang="scss" scoped>
-.finance-view {}
+.main-card {
+  border-radius: 12px !important;
+  :deep(.el-card__header) { padding: 14px 20px; }
+}
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -149,8 +152,8 @@ onMounted(fetchList)
   padding: 16px 0;
   border-bottom: 1px solid #eee;
 }
-.income-amount { color: #67c23a; font-weight: bold; }
-.refund-amount { color: #f56c6c; font-weight: bold; }
+.income-amount { color: #52c41a; font-weight: bold; }
+.refund-amount { color: #ff4d4f; font-weight: bold; }
 .order-no { font-family: monospace; font-size: 12px; }
 .pagination {
   margin-top: 20px;
