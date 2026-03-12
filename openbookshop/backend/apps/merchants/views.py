@@ -2,6 +2,8 @@ from rest_framework import filters
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 
+from django.db import transaction
+
 from utils.permissions import IsAdmin, IsMerchant
 from utils.response import error_response, success_response
 
@@ -15,6 +17,7 @@ class MerchantApplyView(CreateAPIView):
     serializer_class = MerchantApplySerializer
     permission_classes = [IsAuthenticated]
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         if hasattr(request.user, 'merchant'):
             return error_response(message="您已提交过商家申请")

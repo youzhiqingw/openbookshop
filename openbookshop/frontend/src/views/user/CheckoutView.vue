@@ -127,6 +127,10 @@ async function submitOrder() {
       remark: remark.value,
     })
     const order = res.data || res
+    if (!order?.id) {
+      ElMessage.error('订单创建失败，请重试')
+      return
+    }
     ElMessage.success('订单创建成功，请完成支付')
     await cartStore.fetchCart()
     router.push(`/orders/${order.id}/pay`)

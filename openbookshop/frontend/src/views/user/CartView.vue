@@ -97,7 +97,11 @@ async function removeItem(id) {
 }
 
 async function clearCart() {
-  await ElMessageBox.confirm('确定要清空购物车吗？', '提示', { type: 'warning' })
+  try {
+    await ElMessageBox.confirm('确定要清空购物车吗？', '提示', { type: 'warning' })
+  } catch {
+    return
+  }
   await cartStore.clearCart()
   selectedIds.value = []
 }

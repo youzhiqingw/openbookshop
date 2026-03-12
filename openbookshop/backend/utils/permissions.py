@@ -20,6 +20,7 @@ class IsMerchant(BasePermission):
             request.user
             and request.user.is_authenticated
             and request.user.role == 'merchant'
+            and hasattr(request.user, 'merchant')
         )
 
 

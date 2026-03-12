@@ -46,7 +46,10 @@ class CartAddView(APIView):
     def post(self, request):
         from apps.books.models import Book
         book_id = request.data.get('book_id')
-        quantity = int(request.data.get('quantity', 1))
+        try:
+            quantity = int(request.data.get('quantity', 1))
+        except (TypeError, ValueError):
+            return error_response(message="数量参数无效")
         if not book_id:
             return error_response(message="请指定图书")
         try:
@@ -128,8 +131,12 @@ class OrderCreateView(APIView):
         cart_item_ids = serializer.validated_data['cart_item_ids']
         remark = serializer.validated_data['remark']
 
+        from apps.books.models import Book
         from apps.users.models import Address
-        address = Address.objects.get(pk=address_id, user=request.user)
+        try:
+            address = Address.objects.get(pk=address_id, user=request.user)
+        except Address.DoesNotExist:
+            return error_response(message="收货地址不存在", code=404)
 
         # Determine which cart items to checkout
         cart_qs = Cart.objects.filter(user=request.user).select_related('book', 'book__merchant')
@@ -140,14 +147,21 @@ class OrderCreateView(APIView):
         if not cart_items:
             return error_response(message="购物车为空，请先添加商品")
 
+        # Lock books with select_for_update to prevent overselling in concurrent requests
+        book_ids = [item.book_id for item in cart_items]
+        locked_books = {b.id: b for b in Book.objects.select_for_update().filter(id__in=book_ids)}
+
         # Validate stock and calculate total
         total_amount = Decimal('0.00')
         for item in cart_items:
-            if not item.book.is_on_sale:
-                return error_response(message=f"《{item.book.title}》已下架")
-            if item.book.stock < item.quantity:
-                return error_response(message=f"《{item.book.title}》库存不足")
-            total_amount += item.book.price * item.quantity
+            book = locked_books.get(item.book_id)
+            # Fallback to cached item.book for error messages if book was just deleted
+            display_title = book.title if book else (item.book.title if item.book else '该图书')
+            if not book or not book.is_on_sale:
+                return error_response(message=f"《{display_title}》已下架")
+            if book.stock < item.quantity:
+                return error_response(message=f"《{display_title}》库存不足")
+            total_amount += book.price * item.quantity
 
         # Address snapshot
         address_snapshot = {
@@ -169,23 +183,24 @@ class OrderCreateView(APIView):
 
         # Create order items and deduct stock
         for item in cart_items:
+            book = locked_books[item.book_id]
             cover_url = ''
-            if item.book.cover:
-                cover_url = request.build_absolute_uri(item.book.cover.url)
+            if book.cover:
+                cover_url = request.build_absolute_uri(book.cover.url)
             OrderItem.objects.create(
                 order=order,
-                book=item.book,
-                merchant=item.book.merchant,
-                book_title=item.book.title,
+                book=book,
+                merchant=book.merchant,
+                book_title=book.title,
                 book_cover=cover_url,
-                book_author=item.book.author,
-                price=item.book.price,
+                book_author=book.author,
+                price=book.price,
                 quantity=item.quantity,
-                subtotal=item.book.price * item.quantity,
+                subtotal=book.price * item.quantity,
             )
-            # Deduct stock
-            item.book.stock -= item.quantity
-            item.book.save(update_fields=['stock'])
+            # Deduct stock using locked book instance
+            book.stock -= item.quantity
+            book.save(update_fields=['stock'])
 
         # Remove purchased items from cart
         cart_qs.delete()
@@ -247,11 +262,17 @@ class OrderCancelView(APIView):
         if order.status not in ('pending_payment', 'paid'):
             return error_response(message="当前状态不允许取消订单")
 
-        # Restore stock
-        for item in order.items.select_related('book').all():
-            if item.book:
-                item.book.stock += item.quantity
-                item.book.save(update_fields=['stock'])
+        # Restore stock using select_for_update to prevent race conditions
+        items_with_books = list(order.items.filter(book__isnull=False).select_related('book'))
+        if items_with_books:
+            book_ids = [item.book_id for item in items_with_books]
+            from apps.books.models import Book
+            locked_books = {b.id: b for b in Book.objects.select_for_update().filter(id__in=book_ids)}
+            for item in items_with_books:
+                locked_book = locked_books.get(item.book_id)
+                if locked_book:
+                    locked_book.stock += item.quantity
+                    locked_book.save(update_fields=['stock'])
 
         order.status = 'cancelled'
         order.save(update_fields=['status', 'updated_at'])
@@ -297,6 +318,7 @@ class OrderPayCallbackView(APIView):
 
     permission_classes = [IsAuthenticated]
 
+    @transaction.atomic
     def post(self, request, pk):
         try:
             order = Order.objects.get(pk=pk, user=request.user)

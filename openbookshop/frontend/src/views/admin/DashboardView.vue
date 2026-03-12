@@ -96,7 +96,9 @@ async function fetchStatistics() {
 
 function initCharts() {
   if (!stats.value) return
-  const { daily_data, status_distribution, top_books } = stats.value
+  const daily_data = stats.value.daily_data || []
+  const status_distribution = stats.value.status_distribution || []
+  const top_books = stats.value.top_books || []
 
   // 折线图：订单量 & 收入趋势
   const lineChart = echarts.init(lineChartRef.value)
