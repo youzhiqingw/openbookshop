@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知书坊 - 在线书店</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af', // 深蓝色
+                        secondary: '#f5f5dc', // 米白色
+                        accent: '#3b82f6', // 亮蓝色
+                        neutral: '#f8fafc', // 浅灰色
+                        'primary-light': '#3b82f6', // 浅蓝色
+                        'primary-dark': '#1e3a8a', // 深蓝色
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-in-out',
+                        'slide-down': 'slideDown 0.5s ease-in-out',
+                        'slide-left': 'slideLeft 0.5s ease-in-out',
+                        'slide-right': 'slideRight 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        slideDown: {
+                            '0%': { transform: 'translateY(-20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        slideLeft: {
+                            '0%': { transform: 'translateX(20px)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' },
+                        },
+                        slideRight: {
+                            '0%': { transform: 'translateX(-20px)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            }
+            .card-hover {
+                @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+            .btn-primary {
+                @apply bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded transition-colors duration-300;
+            }
+            .btn-secondary {
+                @apply bg-white border border-primary text-primary hover:bg-primary hover:text-white font-medium py-2 px-4 rounded transition-colors duration-300;
+            }
+            .input-field {
+                @apply w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+            }
+            .section-fade {
+                @apply opacity-0 transition-opacity duration-500;
+            }
+            .section-fade.active {
+                @apply opacity-100;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- 页面容器 -->
+    <div id="app" class="min-h-screen flex flex-col">
+        <!-- 导航栏 -->
+        <nav id="navbar" class="bg-white shadow-md sticky top-0 z-50">
+            <div class="container mx-auto px-4 py-3">
+                <div class="flex justify-between items-center">
+                    <!-- Logo -->
+                    <div class="flex items-center space-x-2">
+                        <img src="https://p6-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/b21dc0796ef54290920428f66424ac64~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260303133651FB5248F5CDAD12A6B020&rrcfp=f06b921b&x-expires=1775108282&x-signature=N9h%2F5Rw3zVLCh2KSglPcKWTptT0%3D" alt="知书坊" class="h-10 w-10">
+                        <span class="text-xl font-bold text-primary">知书坊</span>
+                    </div>
+                    
+                    <!-- 搜索框 -->
+                    <div class="hidden md:flex items-center flex-1 max-w-xl mx-8">
+                        <div class="relative w-full">
+                            <input type="text" placeholder="搜索书籍、作者或ISBN..." class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <span class="absolute left-3 top-2.5 text-gray-400">
+                                <i class="fa fa-search"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- 导航链接 -->
+                    <div class="hidden md:flex items-center space-x-6">
+                        <a href="#" class="text-gray-700 hover:text-primary transition-colors" data-section="home">首页</a>
+                        <a href="#" class="text-gray-700 hover:text-primary transition-colors" data-section="categories">分类</a>
+                        <a href="#" class="text-gray-700 hover:text-primary transition-colors" data-section="bestsellers">畅销榜</a>
+                        <a href="#" class="text-gray-700 hover:text-primary transition-colors" data-section="new-releases">新书</a>
+                    </div>
+                    
+                    <!-- 用户操作 -->
+                    <div class="flex items-center space-x-4">
+                        <button id="cart-btn" class="relative text-gray-700 hover:text-primary transition-colors">
+                            <i class="fa fa-shopping-cart text-xl"></i>
+                            <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                        </button>
+                        <button id="user-btn" class="text-gray-700 hover:text-primary transition-colors">
+                            <i class="fa fa-user text-xl"></i>
+                        </button>
+                        <button id="mobile-menu-btn" class="md:hidden text-gray-700 hover:text-primary transition-colors">
+                            <i class="fa fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 移动端搜索框 -->
+                <div class="md:hidden mt-3">
+                    <div class="relative">
+                        <input type="text" placeholder="搜索书籍、作者或ISBN..." class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <span class="absolute left-3 top-2.5 text-gray-400">
+                            <i class="fa fa-search"></i>
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- 移动端导航菜单 -->
+                <div id="mobile-menu" class="md:hidden hidden mt-3 pb-2">
+                    <a href="#" class="block py-2 text-gray-700 hover:text-primary transition-colors" data-section="home">首页</a>
+                    <a href="#" class="block py-2 text-gray-700 hover:text-primary transition-colors" data-section="categories">分类</a>
+                    <a href="#" class="block py-2 text-gray-700 hover:text-primary transition-colors" data-section="bestsellers">畅销榜</a>
+                    <a href="#" class="block py-2 text-gray-700 hover:text-primary transition-colors" data-section="new-releases">新书</a>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- 用户下拉菜单 -->
+        <div id="user-dropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" data-section="login">登录</a>
+            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" data-section="register">注册</a>
+            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hidden" id="profile-link" data-section="profile">个人中心</a>
+            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hidden" id="seller-link" data-section="seller-dashboard">商家中心</a>
+            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hidden" id="admin-link" data-section="admin-dashboard">管理中心</a>
+            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hidden" id="logout-link">退出登录</a>
+        </div>
+        
+        <!-- 主内容区域 -->
+        <main class="flex-grow container mx-auto px-4 py-6">
+            <!-- 首页 -->
+            <section id="home" class="section active">
+                <!-- 轮播图 -->
+                <div class="relative rounded-xl overflow-hidden shadow-lg mb-8 animate-fade-in">
+                    <div id="carousel" class="relative h-80 md:h-96">
+                        <div class="carousel-item absolute inset-0 bg-cover bg-center" style="background-image: url('https://p26-doubao-search-sign.byteimg.com/labis/c542ab876e1cdca4f759c14dbe5ab287~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=h44oqnTnv2Y8%2FEPySBf8wX600FQ%3D')">
+                            <div class="absolute inset-0 bg-gradient-to-r from-primary/70 to-transparent flex items-center">
+                                <div class="p-8 md:p-12 max-w-lg">
+                                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 text-shadow">科技与未来</h2>
+                                    <p class="text-white mb-6 text-shadow">探索前沿科技，把握未来趋势，开启智慧人生</p>
+                                    <button class="btn-primary">立即探索</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-item absolute inset-0 bg-cover bg-center opacity-0" style="background-image: url('https://p11-doubao-search-sign.byteimg.com/labis/9cc2a78226a14a31828ec84318fea797~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=CR4VDpuMYBYaRUScDY903hSzBfo%3D')">
+                            <div class="absolute inset-0 bg-gradient-to-r from-primary/70 to-transparent flex items-center">
+                                <div class="p-8 md:p-12 max-w-lg">
+                                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 text-shadow">中国历史</h2>
+                                    <p class="text-white mb-6 text-shadow">穿越时空，领略五千年中华文明的魅力</p>
+                                    <button class="btn-primary">立即探索</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-item absolute inset-0 bg-cover bg-center opacity-0" style="background-image: url('https://p11-doubao-search-sign.byteimg.com/labis/a31043974fff67f3e8baa908df713e25~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=fyYIl12qwgXxje6xyYMxVZD9pAQ%3D')">
+                            <div class="absolute inset-0 bg-gradient-to-r from-primary/70 to-transparent flex items-center">
+                                <div class="p-8 md:p-12 max-w-lg">
+                                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 text-shadow">奇幻世界</h2>
+                                    <p class="text-white mb-6 text-shadow">开启想象力之旅，探索无限可能的奇幻世界</p>
+                                    <button class="btn-primary">立即探索</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 轮播图控制按钮 -->
+                    <button class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 rounded-full p-2 text-white transition-colors" id="prev-slide">
+                        <i class="fa fa-chevron-left"></i>
+                    </button>
+                    <button class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 rounded-full p-2 text-white transition-colors" id="next-slide">
+                        <i class="fa fa-chevron-right"></i>
+                    </button>
+                    <!-- 轮播图指示器 -->
+                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+                        <button class="w-3 h-3 rounded-full bg-white opacity-100 transition-opacity" data-index="0"></button>
+                        <button class="w-3 h-3 rounded-full bg-white opacity-50 transition-opacity" data-index="1"></button>
+                        <button class="w-3 h-3 rounded-full bg-white opacity-50 transition-opacity" data-index="2"></button>
+                    </div>
+                </div>
+                
+                <!-- 分类导航 -->
+                <div class="mb-8 animate-slide-up">
+                    <h2 class="text-2xl font-bold mb-4">分类导航</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        <a href="#" class="bg-white rounded-lg shadow p-4 text-center card-hover">
+                            <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-2">
+                                <i class="fa fa-book text-primary text-2xl"></i>
+                            </div>
+                            <span class="text-gray-700">文学小说</span>
+                        </a>
+                        <a href="#" class="bg-white rounded-lg shadow p-4 text-center card-hover">
+                            <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-2">
+                                <i class="fa fa-flask text-green-600 text-2xl"></i>
+                            </div>
+                            <span class="text-gray-700">科技</span>
+                        </a>
+                        <a href="#" class="bg-white rounded-lg shadow p-4 text-center card-hover">
+                            <div class="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-2">
+                                <i class="fa fa-history text-yellow-600 text-2xl"></i>
+                            </div>
+                            <span class="text-gray-700">历史</span>
+                        </a>
+                        <a href="#" class="bg-white rounded-lg shadow p-4 text-center card-hover">
+                            <div class="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-2">
+                                <i class="fa fa-heart text-red-600 text-2xl"></i>
+                            </div>
+                            <span class="text-gray-700">艺术</span>
+                        </a>
+                        <a href="#" class="bg-white rounded-lg shadow p-4 text-center card-hover">
+                            <div class="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-2">
+                                <i class="fa fa-briefcase text-purple-600 text-2xl"></i>
+                            </div>
+                            <span class="text-gray-700">经管</span>
+                        </a>
+                        <a href="#" class="bg-white rounded-lg shadow p-4 text-center card-hover">
+                            <div class="bg-pink-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-2">
+                                <i class="fa fa-graduation-cap text-pink-600 text-2xl"></i>
+                            </div>
+                            <span class="text-gray-700">教育</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 热门推荐 -->
+                <div class="mb-8 animate-slide-up" style="animation-delay: 0.1s;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">热门推荐</h2>
+                        <a href="#" class="text-primary hover:underline">查看更多</a>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                        <!-- 书籍卡片 -->
+                        <div class="bg-white rounded-lg shadow overflow-hidden card-hover">
+                            <img src="https://p11-doubao-search-sign.byteimg.com/labis/a31043974fff67f3e8baa908df713e25~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=fyYIl12qwgXxje6xyYMxVZD9pAQ%3D" alt="霍比特人" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-medium text-gray-900 line-clamp-1">霍比特人</h3>
+                                <p class="text-sm text-gray-500 line-clamp-1">J.R.R. 托尔金</p>
+                                <div class="flex items-center mt-1">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star-half-o"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-500 ml-1">4.5</span>
+                                </div>
+                                <div class="mt-2 flex justify-between items-center">
+                                    <span class="text-primary font-bold">¥39.90</span>
+                                    <button class="add-to-cart bg-primary text-white p-1 rounded-full hover:bg-primary-dark transition-colors">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow overflow-hidden card-hover">
+                            <img src="https://p11-doubao-search-sign.byteimg.com/labis/9cc2a78226a14a31828ec84318fea797~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=CR4VDpuMYBYaRUScDY903hSzBfo%3D" alt="中国历史" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-medium text-gray-900 line-clamp-1">中国历史</h3>
+                                <p class="text-sm text-gray-500 line-clamp-1">高小定</p>
+                                <div class="flex items-center mt-1">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star-o"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-500 ml-1">4.0</span>
+                                </div>
+                                <div class="mt-2 flex justify-between items-center">
+                                    <span class="text-primary font-bold">¥45.00</span>
+                                    <button class="add-to-cart bg-primary text-white p-1 rounded-full hover:bg-primary-dark transition-colors">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow overflow-hidden card-hover">
+                            <img src="https://p26-doubao-search-sign.byteimg.com/labis/b5e04e7a996bde2ae8c4df7e1192aef7~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=WYDTrIYwwWKWt%2BerKyJjIia%2B9ag%3D" alt="科技前沿" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-medium text-gray-900 line-clamp-1">科技前沿</h3>
+                                <p class="text-sm text-gray-500 line-clamp-1">李明</p>
+                                <div class="flex items-center mt-1">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-500 ml-1">5.0</span>
+                                </div>
+                                <div class="mt-2 flex justify-between items-center">
+                                    <span class="text-primary font-bold">¥59.90</span>
+                                    <button class="add-to-cart bg-primary text-white p-1 rounded-full hover:bg-primary-dark transition-colors">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow overflow-hidden card-hover">
+                            <img src="https://p11-doubao-search-sign.byteimg.com/labis/d9d516700180c1450bf22a13d9e24dea~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=WQ5uC9YlnOBkNfV0a4Kfk2Dc9h4%3D" alt="绝世狂妃" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-medium text-gray-900 line-clamp-1">绝世狂妃</h3>
+                                <p class="text-sm text-gray-500 line-clamp-1">风清</p>
+                                <div class="flex items-center mt-1">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star-half-o"></i>
+                                        <i class="fa fa-star-o"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-500 ml-1">3.5</span>
+                                </div>
+                                <div class="mt-2 flex justify-between items-center">
+                                    <span class="text-primary font-bold">¥29.90</span>
+                                    <button class="add-to-cart bg-primary text-white p-1 rounded-full hover:bg-primary-dark transition-colors">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow overflow-hidden card-hover">
+                            <img src="https://p26-doubao-search-sign.byteimg.com/labis/b4d243257617dc984bac461eb5d17bdd~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=kooVJ%2F7zndVqZVTx2aNUzmucVtI%3D" alt="何止笙歌" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-medium text-gray-900 line-clamp-1">何止笙歌</h3>
+                                <p class="text-sm text-gray-500 line-clamp-1">顾漫</p>
+                                <div class="flex items-center mt-1">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star-o"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-500 ml-1">4.0</span>
+                                </div>
+                                <div class="mt-2 flex justify-between items-center">
+                                    <span class="text-primary font-bold">¥35.00</span>
+                                    <button class="add-to-cart bg-primary text-white p-1 rounded-full hover:bg-primary-dark transition-colors">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 新书上架 -->
+                <div class="mb-8 animate-slide-up" style="animation-delay: 0.2s;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">新书上架</h2>
+                        <a href="#" class="text-primary hover:underline">查看更多</a>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                        <div class="bg-white rounded-lg shadow overflow-hidden card-hover">
+                            <div class="relative">
+                                <img src="https://p11-doubao-search-sign.byteimg.com/ecom-shop-material/MvUEPqG_m_ff0558c29f1412a214cd17f39b159dca_sx_834077_www752-752~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=dePguEiL0eTQTB6N61pdlrH74d8%3D" alt="封神演义" class="w-full h-48 object-cover">
+                                <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">新书</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-medium text-gray-900 line-clamp-1">封神演义</h3>
+                                <p class="text-sm text-gray-500 line-clamp-1">许仲琳</p>
+                                <div class="flex items-center mt-1">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star-o"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-500 ml-1">4.0</span>
+                                </div>
+                                <div class="mt-2 flex justify-between items-center">
+                                    <span class="text-primary font-bold">¥58.00</span>
+                                    <button class="add-to-cart bg-primary text-white p-1 rounded-full hover:bg-primary-dark transition-colors">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow overflow-hidden card-hover">
+                            <div class="relative">
+                                <img src="https://p26-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/1927639613786161159~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=6jN%2FURu1PlnIZ2uAkaSNGLXGeB8%3D" alt="科技设计" class="w-full h-48 object-cover">
+                                <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">新书</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-medium text-gray-900 line-clamp-1">科技设计</h3>
+                                <p class="text-sm text-gray-500 line-clamp-1">王强</p>
+                                <div class="flex items-center mt-1">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star-half-o"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-500 ml-1">4.5</span>
+                                </div>
+                                <div class="mt-2 flex justify-between items-center">
+                                    <span class="text-primary font-bold">¥68.00</span>
+                                    <button class="add-to-cart bg-primary text-white p-1 rounded-full hover:bg-primary-dark transition-colors">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow overflow-hidden card-hover">
+                            <div class="relative">
+                                <img src="https://p26-doubao-search-sign.byteimg.com/labis/87f3074fb6f103074ffcaf7c24f3a3f1~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=%2BteerrjiVZYuYaqguspFq%2BTwxyc%3D" alt="未来科技" class="w-full h-48 object-cover">
+                                <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">新书</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-medium text-gray-900 line-clamp-1">未来科技</h3>
+                                <p class="text-sm text-gray-500 line-clamp-1">张伟</p>
+                                <div class="flex items-center mt-1">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star-o"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-500 ml-1">4.0</span>
+                                </div>
+                                <div class="mt-2 flex justify-between items-center">
+                                    <span class="text-primary font-bold">¥78.00</span>
+                                    <button class="add-to-cart bg-primary text-white p-1 rounded-full hover:bg-primary-dark transition-colors">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow overflow-hidden card-hover">
+                            <div class="relative">
+                                <img src="https://p26-doubao-search-sign.byteimg.com/labis/b22d0f907704cb8fca96117caa9d94d7~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=jd5lv%2F0CDP7se9p4mRxSWbdrSwI%3D" alt="中国通史" class="w-full h-48 object-cover">
+                                <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">新书</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-medium text-gray-900 line-clamp-1">中国通史</h3>
+                                <p class="text-sm text-gray-500 line-clamp-1">吕思勉</p>
+                                <div class="flex items-center mt-1">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-500 ml-1">5.0</span>
+                                </div>
+                                <div class="mt-2 flex justify-between items-center">
+                                    <span class="text-primary font-bold">¥88.00</span>
+                                    <button class="add-to-cart bg-primary text-white p-1 rounded-full hover:bg-primary-dark transition-colors">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow overflow-hidden card-hover">
+                            <div class="relative">
+                                <img src="https://p3-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/2245258088978055169~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=cwsHhwPRn1nI47Cu07fj5xzSPSY%3D" alt="历史人物" class="w-full h-48 object-cover">
+                                <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">新书</span>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-medium text-gray-900 line-clamp-1">历史人物</h3>
+                                <p class="text-sm text-gray-500 line-clamp-1">陈寅恪</p>
+                                <div class="flex items-center mt-1">
+                                    <div class="flex text-yellow-400">
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star-half-o"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-500 ml-1">4.5</span>
+                                </div>
+                                <div class="mt-2 flex justify-between items-center">
+                                    <span class="text-primary font-bold">¥65.00</span>
+                                    <button class="add-to-cart bg-primary text-white p-1 rounded-full hover:bg-primary-dark transition-colors">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI推荐 -->
+                <div class="mb-8 animate-slide-up" style="animation-delay: 0.3s;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">
+                            <span class="flex items-center">
+                                <i class="fa fa-lightbulb-o text-yellow-500 mr-2"></i>
+                                AI智能推荐
+                            </span>
+                        </h2>
+                        <a href="#" class="text-primary hover:underline">更多推荐</a>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="mb-4">
+                            <p class="text-gray-600">根据您的浏览历史和偏好，我们为您推荐以下书籍：</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="flex space-x-4">
+                                <img src="https://p11-doubao-search-sign.byteimg.com/labis/a31043974fff67f3e8baa908df713e25~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=fyYIl12qwgXxje6xyYMxVZD9pAQ%3D" alt="霍比特人" class="w-24 h-32 object-cover rounded shadow">
+                                <div>
+                                    <h3 class="font-medium text-gray-900">霍比特人</h3>
+                                    <p class="text-sm text-gray-500">J.R.R. 托尔金</p>
+                                    <div class="flex items-center mt-1">
+                                        <div class="flex text-yellow-400">
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star-half-o"></i>
+                                        </div>
+                                        <span class="text-xs text-gray-500 ml-1">4.5</span>
+                                    </div>
+                                    <p class="text-primary font-bold mt-1">¥39.90</p>
+                                    <div class="mt-2 flex space-x-2">
+                                        <button class="add-to-cart btn-primary text-sm py-1 px-3">加入购物车</button>
+                                        <button class="btn-secondary text-sm py-1 px-3">查看详情</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-4">
+                                <img src="https://p26-doubao-search-sign.byteimg.com/labis/b5e04e7a996bde2ae8c4df7e1192aef7~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=WYDTrIYwwWKWt%2BerKyJjIia%2B9ag%3D" alt="科技前沿" class="w-24 h-32 object-cover rounded shadow">
+                                <div>
+                                    <h3 class="font-medium text-gray-900">科技前沿</h3>
+                                    <p class="text-sm text-gray-500">李明</p>
+                                    <div class="flex items-center mt-1">
+                                        <div class="flex text-yellow-400">
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </div>
+                                        <span class="text-xs text-gray-500 ml-1">5.0</span>
+                                    </div>
+                                    <p class="text-primary font-bold mt-1">¥59.90</p>
+                                    <div class="mt-2 flex space-x-2">
+                                        <button class="add-to-cart btn-primary text-sm py-1 px-3">加入购物车</button>
+                                        <button class="btn-secondary text-sm py-1 px-3">查看详情</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-4">
+                                <img src="https://p11-doubao-search-sign.byteimg.com/labis/9cc2a78226a14a31828ec84318fea797~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=CR4VDpuMYBYaRUScDY903hSzBfo%3D" alt="中国历史" class="w-24 h-32 object-cover rounded shadow">
+                                <div>
+                                    <h3 class="font-medium text-gray-900">中国历史</h3>
+                                    <p class="text-sm text-gray-500">高小定</p>
+                                    <div class="flex items-center mt-1">
+                                        <div class="flex text-yellow-400">
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star-o"></i>
+                                        </div>
+                                        <span class="text-xs text-gray-500 ml-1">4.0</span>
+                                    </div>
+                                    <p class="text-primary font-bold mt-1">¥45.00</p>
+                                    <div class="mt-2 flex space-x-2">
+                                        <button class="add-to-cart btn-primary text-sm py-1 px-3">加入购物车</button>
+                                        <button class="btn-secondary text-sm py-1 px-3">查看详情</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6 text-center">
+                            <p class="text-sm text-gray-500 mb-2">为什么推荐这些书？</p>
+                            <div class="flex flex-wrap justify-center gap-2">
+                                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">您浏览过奇幻类书籍</span>
+                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">您购买过科技类书籍</span>
+                                <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">近期热门</span>
+                                <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">高评分</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 登录页面 -->
+            <section id="login" class="section hidden">
+                <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg overflow-hidden p-8 mt-10 mb-10 animate-fade-in">
+                    <div class="text-center mb-6">
+                        <img src="https://p6-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/b21dc0796ef54290920428f66424ac64~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260303133651FB5248F5CDAD12A6B020&rrcfp=f06b921b&x-expires=1775108282&x-signature=N9h%2F5Rw3zVLCh2KSglPcKWTptT0%3D" alt="知书坊" class="h-16 w-16 mx-auto mb-2">
+                        <h2 class="text-2xl font-bold text-gray-800">欢迎登录知书坊</h2>
+                        <p class="text-gray-600">登录后享受更多服务</p>
+                    </div>
+                    
+                    <form id="login-form" class="space-y-4">
+                        <div>
+                            <label for="username" class="block text-gray-700 text-sm font-medium mb-1">用户名/邮箱/手机号</label>
+                            <input type="text" id="username" name="username" class="input-field" placeholder="请输入用户名/邮箱/手机号" required>
+                        </div>
+                        
+                        <div>
+                            <label for="password" class="block text-gray-700 text-sm font-medium mb-1">密码</label>
+                            <input type="password" id="password" name="password" class="input-field" placeholder="请输入密码" required>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="remember" name="remember" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                <label for="remember" class="ml-2 block text-sm text-gray-700">记住我</label>
+                            </div>
+                            <a href="#" class="text-sm text-primary hover:underline">忘记密码？</a>
+                        </div>
+                        
+                        <div>
+                            <button type="submit" class="w-full btn-primary">登录</button>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <p class="text-sm text-gray-600">还没有账号？<a href="#" class="text-primary hover:underline" data-section="register">立即注册</a></p>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-6">
+                        <div class="relative">
+                            <div class="absolute inset-0 flex items-center">
+                                <div class="w-full border-t border-gray-300"></div>
+                            </div>
+                            <div class="relative flex justify-center text-sm">
+                                <span class="px-2 bg-white text-gray-500">其他登录方式</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 grid grid-cols-3 gap-3">
+                            <button class="flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 transition-colors">
+                                <i class="fa fa-weixin text-green-600 text-xl"></i>
+                            </button>
+                            <button class="flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 transition-colors">
+                                <i class="fa fa-qq text-blue-500 text-xl"></i>
+                            </button>
+                            <button class="flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 transition-colors">
+                                <i class="fa fa-weibo text-red-500 text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 注册页面 -->
+            <section id="register" class="section hidden">
+                <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg overflow-hidden p-8 mt-10 mb-10 animate-fade-in">
+                    <div class="text-center mb-6">
+                        <img src="https://p6-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/b21dc0796ef54290920428f66424ac64~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260303133651FB5248F5CDAD12A6B020&rrcfp=f06b921b&x-expires=1775108282&x-signature=N9h%2F5Rw3zVLCh2KSglPcKWTptT0%3D" alt="知书坊" class="h-16 w-16 mx-auto mb-2">
+                        <h2 class="text-2xl font-bold text-gray-800">注册知书坊账号</h2>
+                        <p class="text-gray-600">加入知书坊，开启阅读之旅</p>
+                    </div>
+                    
+                    <form id="register-form" class="space-y-4">
+                        <div>
+                            <label for="reg-username" class="block text-gray-700 text-sm font-medium mb-1">用户名</label>
+                            <input type="text" id="reg-username" name="username" class="input-field" placeholder="请输入用户名" required>
+                        </div>
+                        
+                        <div>
+                            <label for="reg-email" class="block text-gray-700 text-sm font-medium mb-1">邮箱</label>
+                            <input type="email" id="reg-email" name="email" class="input-field" placeholder="请输入邮箱" required>
+                        </div>
+                        
+                        <div>
+                            <label for="reg-phone" class="block text-gray-700 text-sm font-medium mb-1">手机号</label>
+                            <input type="tel" id="reg-phone" name="phone" class="input-field" placeholder="请输入手机号" required>
+                        </div>
+                        
+                        <div>
+                            <label for="reg-password" class="block text-gray-700 text-sm font-medium mb-1">密码</label>
+                            <input type="password" id="reg-password" name="password" class="input-field" placeholder="请输入密码" required>
+                            <p class="mt-1 text-xs text-gray-500">密码长度至少8位，包含字母和数字</p>
+                        </div>
+                        
+                        <div>
+                            <label for="reg-confirm-password" class="block text-gray-700 text-sm font-medium mb-1">确认密码</label>
+                            <input type="password" id="reg-confirm-password" name="confirm-password" class="input-field" placeholder="请再次输入密码" required>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="agree" name="agree" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" required>
+                            <label for="agree" class="ml-2 block text-sm text-gray-700">
+                                我已阅读并同意<a href="#" class="text-primary hover:underline">《用户协议》</a>和<a href="#" class="text-primary hover:underline">《隐私政策》</a>
+                            </label>
+                        </div>
+                        
+                        <div>
+                            <button type="submit" class="w-full btn-primary">注册</button>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <p class="text-sm text-gray-600">已有账号？<a href="#" class="text-primary hover:underline" data-section="login">立即登录</a></p>
+                        </div>
+                    </form>
+                </div>
+            </section>
+            
+            <!-- 商家注册页面 -->
+            <section id="seller-register" class="section hidden">
+                <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden p-8 mt-10 mb-10 animate-fade-in">
+                    <div class="text-center mb-6">
+                        <img src="https://p6-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/b21dc0796ef54290920428f66424ac64~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260303133651FB5248F5CDAD12A6B020&rrcfp=f06b921b&x-expires=1775108282&x-signature=N9h%2F5Rw3zVLCh2KSglPcKWTptT0%3D" alt="知书坊" class="h-16 w-16 mx-auto mb-2">
+                        <h2 class="text-2xl font-bold text-gray-800">商家入驻知书坊</h2>
+                        <p class="text-gray-600">加入我们，一起为读者提供优质书籍</p>
+                    </div>
+                    
+                    <form id="seller-register-form" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="shop-name" class="block text-gray-700 text-sm font-medium mb-1">店铺名称</label>
+                                <input type="text" id="shop-name" name="shop-name" class="input-field" placeholder="请输入店铺名称" required>
+                            </div>
+                            
+                            <div>
+                                <label for="contact-person" class="block text-gray-700 text-sm font-medium mb-1">联系人</label>
+                                <input type="text" id="contact-person" name="contact-person" class="input-field" placeholder="请输入联系人姓名" required>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="contact-phone" class="block text-gray-700 text-sm font-medium mb-1">联系电话</label>
+                                <input type="tel" id="contact-phone" name="contact-phone" class="input-field" placeholder="请输入联系电话" required>
+                            </div>
+                            
+                            <div>
+                                <label for="contact-email" class="block text-gray-700 text-sm font-medium mb-1">联系邮箱</label>
+                                <input type="email" id="contact-email" name="contact-email" class="input-field" placeholder="请输入联系邮箱" required>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="shop-description" class="block text-gray-700 text-sm font-medium mb-1">店铺描述</label>
+                            <textarea id="shop-description" name="shop-description" rows="3" class="input-field" placeholder="请简要描述您的店铺和经营方向"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-1">营业执照</label>
+                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                <div class="space-y-1 text-center">
+                                    <i class="fa fa-cloud-upload text-gray-400 text-3xl"></i>
+                                    <div class="flex text-sm text-gray-600">
+                                        <label for="license-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary-dark focus-within:outline-none">
+                                            <span>上传营业执照</span>
+                                            <input id="license-upload" name="license-upload" type="file" class="sr-only" accept="image/*">
+                                        </label>
+                                        <p class="pl-1">或拖放文件</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500">支持PNG、JPG格式，大小不超过5MB</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="seller-agree" name="seller-agree" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" required>
+                            <label for="seller-agree" class="ml-2 block text-sm text-gray-700">
+                                我已阅读并同意<a href="#" class="text-primary hover:underline">《商家入驻协议》</a>和<a href="#" class="text-primary hover:underline">《平台规则》</a>
+                            </label>
+                        </div>
+                        
+                        <div>
+                            <button type="submit" class="w-full btn-primary">提交申请</button>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <p class="text-sm text-gray-600">提交后我们将在1-3个工作日内审核您的申请</p>
+                        </div>
+                    </form>
+                </div>
+            </section>
+            
+            <!-- 管理员登录页面 -->
+            <section id="admin-login" class="section hidden">
+                <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg overflow-hidden p-8 mt-10 mb-10 animate-fade-in">
+                    <div class="text-center mb-6">
+                        <img src="https://p6-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/b21dc0796ef54290920428f66424ac64~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260303133651FB5248F5CDAD12A6B020&rrcfp=f06b921b&x-expires=1788068297&x-signature=N9h%2F5Rw3zVLCh2KSglPcKWTptT0%3D" alt="知书坊" class="h-16 w-16 mx-auto mb-2">
+                        <h2 class="text-2xl font-bold text-gray-800">管理员登录</h2>
+                        <p class="text-gray-600">请输入管理员账号和密码</p>
+                    </div>
+                    
+                    <form id="admin-login-form" class="space-y-4">
+                        <div>
+                            <label for="admin-username" class="block text-gray-700 text-sm font-medium mb-1">管理员账号</label>
+                            <input type="text" id="admin-username" name="admin-username" class="input-field" placeholder="请输入管理员账号" required>
+                        </div>
+                        
+                        <div>
+                            <label for="admin-password" class="block text-gray-700 text-sm font-medium mb-1">密码</label>
+                            <input type="password" id="admin-password" name="admin-password" class="input-field" placeholder="请输入密码" required>
+                        </div>
+                        
+                        <div>
+                            <label for="admin-code" class="block text-gray-700 text-sm font-medium mb-1">验证码</label>
+                            <div class="flex space-x-2">
+                                <input type="text" id="admin-code" name="admin-code" class="input-field flex-grow" placeholder="请输入验证码" required>
+                                <div class="bg-gray-200 rounded-md w-24 flex items-center justify-center text-gray-600 font-bold">
+                                    ABCD1
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <button type="submit" class="w-full btn-primary">登录</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+            
+            <!-- 购物车页面 -->
+            <section id="cart" class="section hidden">
+                <div class="max-w-5xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden p-6 mt-6 mb-10 animate-fade-in">
+                    <h2 class="text-2xl font-bold mb-6">购物车</h2>
+                    
+                    <div id="cart-items" class="space-y-4">
+                        <!-- 购物车为空状态 -->
+                        <div id="empty-cart" class="text-center py-12">
+                            <i class="fa fa-shopping-cart text-gray-300 text-5xl mb-4"></i>
+                            <h3 class="text-xl font-medium text-gray-700 mb-2">购物车还是空的</h3>
+                            <p class="text-gray-500 mb-6">快去挑选心仪的书籍吧</p>
+                            <button class="btn-primary" data-section="home">去逛逛</button>
+                        </div>
+                        
+                        <!-- 购物车商品列表 -->
+                        <div id="cart-list" class="hidden">
+                            <div class="grid grid-cols-12 gap-4 pb-4 border-b border-gray-200 text-sm font-medium text-gray-500">
+                                <div class="col-span-1">
+                                    <input type="checkbox" id="select-all" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                </div>
+                                <div class="col-span-5">商品信息</div>
+                                <div class="col-span-2 text-center">单价</div>
+                                <div class="col-span-2 text-center">数量</div>
+                                <div class="col-span-1 text-center">小计</div>
+                                <div class="col-span-1 text-center">操作</div>
+                            </div>
+                            
+                            <!-- 购物车商品项 -->
+                            <div class="cart-item grid grid-cols-12 gap-4 items-center py-4 border-b border-gray-200">
+                                <div class="col-span-1">
+                                    <input type="checkbox" class="item-select h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" checked>
+                                </div>
+                                <div class="col-span-5 flex items-center space-x-4">
+                                    <img src="https://p11-doubao-search-sign.byteimg.com/labis/a31043974fff67f3e8baa908df713e25~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=fyYIl12qwgXxje6xyYMxVZD9pAQ%3D" alt="霍比特人" class="w-16 h-24 object-cover rounded shadow">
+                                    <div>
+                                        <h3 class="font-medium text-gray-900">霍比特人</h3>
+                                        <p class="text-sm text-gray-500">J.R.R. 托尔金</p>
+                                        <p class="text-xs text-gray-400">出版社: 上海人民出版社</p>
+                                    </div>
+                                </div>
+                                <div class="col-span-2 text-center text-gray-900">¥39.90</div>
+                                <div class="col-span-2 text-center">
+                                    <div class="flex items-center justify-center">
+                                        <button class="quantity-decrease bg-gray-100 hover:bg-gray-200 text-gray-600 h-8 w-8 flex items-center justify-center rounded-l transition-colors">-</button>
+                                        <input type="number" value="1" min="1" class="quantity h-8 w-12 text-center border-t border-b border-gray-300 focus:outline-none">
+                                        <button class="quantity-increase bg-gray-100 hover:bg-gray-200 text-gray-600 h-8 w-8 flex items-center justify-center rounded-r transition-colors">+</button>
+                                    </div>
+                                </div>
+                                <div class="col-span-1 text-center text-primary font-bold">¥39.90</div>
+                                <div class="col-span-1 text-center">
+                                    <button class="remove-item text-gray-400 hover:text-red-500 transition-colors">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="cart-item grid grid-cols-12 gap-4 items-center py-4 border-b border-gray-200">
+                                <div class="col-span-1">
+                                    <input type="checkbox" class="item-select h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" checked>
+                                </div>
+                                <div class="col-span-5 flex items-center space-x-4">
+                                    <img src="https://p26-doubao-search-sign.byteimg.com/labis/b5e04e7a996bde2ae8c4df7e1192aef7~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=WYDTrIYwwWKWt%2BerKyJjIia%2B9ag%3D" alt="科技前沿" class="w-16 h-24 object-cover rounded shadow">
+                                    <div>
+                                        <h3 class="font-medium text-gray-900">科技前沿</h3>
+                                        <p class="text-sm text-gray-500">李明</p>
+                                        <p class="text-xs text-gray-400">出版社: 科学出版社</p>
+                                    </div>
+                                </div>
+                                <div class="col-span-2 text-center text-gray-900">¥59.90</div>
+                                <div class="col-span-2 text-center">
+                                    <div class="flex items-center justify-center">
+                                        <button class="quantity-decrease bg-gray-100 hover:bg-gray-200 text-gray-600 h-8 w-8 flex items-center justify-center rounded-l transition-colors">-</button>
+                                        <input type="number" value="1" min="1" class="quantity h-8 w-12 text-center border-t border-b border-gray-300 focus:outline-none">
+                                        <button class="quantity-increase bg-gray-100 hover:bg-gray-200 text-gray-600 h-8 w-8 flex items-center justify-center rounded-r transition-colors">+</button>
+                                    </div>
+                                </div>
+                                <div class="col-span-1 text-center text-primary font-bold">¥59.90</div>
+                                <div class="col-span-1 text-center">
+                                    <button class="remove-item text-gray-400 hover:text-red-500 transition-colors">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 结算区域 -->
+                    <div id="checkout-section" class="mt-6 flex flex-col md:flex-row justify-between items-center">
+                        <div class="flex items-center mb-4 md:mb-0">
+                            <input type="checkbox" id="select-all-bottom" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded mr-2">
+                            <label for="select-all-bottom" class="text-sm text-gray-700">全选</label>
+                            <button class="ml-6 text-sm text-gray-500 hover:text-primary transition-colors">清空购物车</button>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <div class="text-right">
+                                <div class="text-sm text-gray-600">
+                                    合计: <span class="text-primary font-bold text-xl">¥99.80</span>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">已优惠: ¥0.00</div>
+                            </div>
+                            <button class="btn-primary px-8">结算</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 商家仪表盘 -->
+            <section id="seller-dashboard" class="section hidden">
+                <div class="max-w-7xl mx-auto mt-6 mb-10 animate-fade-in">
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden p-6 mb-6">
+                        <h2 class="text-2xl font-bold mb-4">商家仪表盘</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="bg-blue-50 rounded-lg p-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-blue-600 font-medium">今日订单</p>
+                                        <p class="text-2xl font-bold text-gray-900 mt-1">12</p>
+                                    </div>
+                                    <div class="bg-blue-100 rounded-full p-3">
+                                        <i class="fa fa-shopping-bag text-blue-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex items-center">
+                                    <span class="text-green-600 text-sm font-medium flex items-center">
+                                        <i class="fa fa-arrow-up mr-1"></i> 8.2%
+                                    </span>
+                                    <span class="text-gray-500 text-sm ml-2">较昨日</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-green-50 rounded-lg p-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-green-600 font-medium">今日销售额</p>
+                                        <p class="text-2xl font-bold text-gray-900 mt-1">¥2,580</p>
+                                    </div>
+                                    <div class="bg-green-100 rounded-full p-3">
+                                        <i class="fa fa-money text-green-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex items-center">
+                                    <span class="text-green-600 text-sm font-medium flex items-center">
+                                        <i class="fa fa-arrow-up mr-1"></i> 12.5%
+                                    </span>
+                                    <span class="text-gray-500 text-sm ml-2">较昨日</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-yellow-50 rounded-lg p-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-yellow-600 font-medium">待处理订单</p>
+                                        <p class="text-2xl font-bold text-gray-900 mt-1">5</p>
+                                    </div>
+                                    <div class="bg-yellow-100 rounded-full p-3">
+                                        <i class="fa fa-clock-o text-yellow-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex items-center">
+                                    <span class="text-red-600 text-sm font-medium flex items-center">
+                                        <i class="fa fa-arrow-up mr-1"></i> 2.1%
+                                    </span>
+                                    <span class="text-gray-500 text-sm ml-2">较昨日</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-purple-50 rounded-lg p-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-purple-600 font-medium">库存预警</p>
+                                        <p class="text-2xl font-bold text-gray-900 mt-1">3</p>
+                                    </div>
+                                    <div class="bg-purple-100 rounded-full p-3">
+                                        <i class="fa fa-exclamation-triangle text-purple-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex items-center">
+                                    <span class="text-red-600 text-sm font-medium flex items-center">
+                                        <i class="fa fa-arrow-up mr-1"></i> 1
+                                    </span>
+                                    <span class="text-gray-500 text-sm ml-2">较昨日</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2">
+                            <div class="bg-white rounded-lg shadow-lg overflow-hidden p-6 mb-6">
+                                <h3 class="text-lg font-bold mb-4">销售趋势</h3>
+                                <div class="h-80">
+                                    <canvas id="sales-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-white rounded-lg shadow-lg overflow-hidden p-6 mb-6">
+                                <h3 class="text-lg font-bold mb-4">热销书籍</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center">
+                                        <img src="https://p11-doubao-search-sign.byteimg.com/labis/a31043974fff67f3e8baa908df713e25~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=fyYIl12qwgXxje6xyYMxVZD9pAQ%3D" alt="霍比特人" class="w-12 h-16 object-cover rounded shadow">
+                                        <div class="ml-3">
+                                            <h4 class="font-medium text-gray-900">霍比特人</h4>
+                                            <p class="text-sm text-gray-500">销量: 42</p>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <span class="text-primary font-bold">¥39.90</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <img src="https://p26-doubao-search-sign.byteimg.com/labis/b5e04e7a996bde2ae8c4df7e1192aef7~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=WYDTrIYwwWKWt%2BerKyJjIia%2B9ag%3D" alt="科技前沿" class="w-12 h-16 object-cover rounded shadow">
+                                        <div class="ml-3">
+                                            <h4 class="font-medium text-gray-900">科技前沿</h4>
+                                            <p class="text-sm text-gray-500">销量: 38</p>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <span class="text-primary font-bold">¥59.90</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <img src="https://p11-doubao-search-sign.byteimg.com/labis/9cc2a78226a14a31828ec84318fea797~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=CR4VDpuMYBYaRUScDY903hSzBfo%3D" alt="中国历史" class="w-12 h-16 object-cover rounded shadow">
+                                        <div class="ml-3">
+                                            <h4 class="font-medium text-gray-900">中国历史</h4>
+                                            <p class="text-sm text-gray-500">销量: 35</p>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <span class="text-primary font-bold">¥45.00</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <img src="https://p11-doubao-search-sign.byteimg.com/labis/d9d516700180c1450bf22a13d9e24dea~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=WQ5uC9YlnOBkNfV0a4Kfk2Dc9h4%3D" alt="绝世狂妃" class="w-12 h-16 object-cover rounded shadow">
+                                        <div class="ml-3">
+                                            <h4 class="font-medium text-gray-900">绝世狂妃</h4>
+                                            <p class="text-sm text-gray-500">销量: 28</p>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <span class="text-primary font-bold">¥29.90</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <img src="https://p26-doubao-search-sign.byteimg.com/labis/b4d243257617dc984bac461eb5d17bdd~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=kooVJ%2F7zndVqZVTx2aNUzmucVtI%3D" alt="何止笙歌" class="w-12 h-16 object-cover rounded shadow">
+                                        <div class="ml-3">
+                                            <h4 class="font-medium text-gray-900">何止笙歌</h4>
+                                            <p class="text-sm text-gray-500">销量: 25</p>
+                                        </div>
+                                        <div class="ml-auto">
+                                            <span class="text-primary font-bold">¥35.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 管理员仪表盘 -->
+            <section id="admin-dashboard" class="section hidden">
+                <div class="max-w-7xl mx-auto mt-6 mb-10 animate-fade-in">
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden p-6 mb-6">
+                        <h2 class="text-2xl font-bold mb-4">系统仪表盘</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="bg-blue-50 rounded-lg p-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-blue-600 font-medium">总用户数</p>
+                                        <p class="text-2xl font-bold text-gray-900 mt-1">12,458</p>
+                                    </div>
+                                    <div class="bg-blue-100 rounded-full p-3">
+                                        <i class="fa fa-users text-blue-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex items-center">
+                                    <span class="text-green-600 text-sm font-medium flex items-center">
+                                        <i class="fa fa-arrow-up mr-1"></i> 5.2%
+                                    </span>
+                                    <span class="text-gray-500 text-sm ml-2">较上月</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-green-50 rounded-lg p-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-green-600 font-medium">总商家数</p>
+                                        <p class="text-2xl font-bold text-gray-900 mt-1">248</p>
+                                    </div>
+                                    <div class="bg-green-100 rounded-full p-3">
+                                        <i class="fa fa-building text-green-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex items-center">
+                                    <span class="text-green-600 text-sm font-medium flex items-center">
+                                        <i class="fa fa-arrow-up mr-1"></i> 3.8%
+                                    </span>
+                                    <span class="text-gray-500 text-sm ml-2">较上月</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-yellow-50 rounded-lg p-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-yellow-600 font-medium">总书籍数</p>
+                                        <p class="text-2xl font-bold text-gray-900 mt-1">15,620</p>
+                                    </div>
+                                    <div class="bg-yellow-100 rounded-full p-3">
+                                        <i class="fa fa-book text-yellow-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex items-center">
+                                    <span class="text-green-600 text-sm font-medium flex items-center">
+                                        <i class="fa fa-arrow-up mr-1"></i> 7.5%
+                                    </span>
+                                    <span class="text-gray-500 text-sm ml-2">较上月</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-purple-50 rounded-lg p-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-purple-600 font-medium">总订单数</p>
+                                        <p class="text-2xl font-bold text-gray-900 mt-1">8,942</p>
+                                    </div>
+                                    <div class="bg-purple-100 rounded-full p-3">
+                                        <i class="fa fa-shopping-cart text-purple-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex items-center">
+                                    <span class="text-green-600 text-sm font-medium flex items-center">
+                                        <i class="fa fa-arrow-up mr-1"></i> 9.2%
+                                    </span>
+                                    <span class="text-gray-500 text-sm ml-2">较上月</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden p-6">
+                            <h3 class="text-lg font-bold mb-4">销售额统计</h3>
+                            <div class="h-80">
+                                <canvas id="admin-sales-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden p-6">
+                            <h3 class="text-lg font-bold mb-4">用户增长</h3>
+                            <div class="h-80">
+                                <canvas id="user-growth-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden p-6">
+                            <h3 class="text-lg font-bold mb-4">书籍分类分布</h3>
+                            <div class="h-80">
+                                <canvas id="category-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden p-6">
+                            <h3 class="text-lg font-bold mb-4">待审核书籍</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                    <img src="https://p11-doubao-search-sign.byteimg.com/ecom-shop-material/MvUEPqG_m_ff0558c29f1412a214cd17f39b159dca_sx_834077_www752-752~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=dePguEiL0eTQTB6N61pdlrH74d8%3D" alt="封神演义" class="w-12 h-16 object-cover rounded shadow">
+                                    <div class="ml-3 flex-grow">
+                                        <h4 class="font-medium text-gray-900">封神演义</h4>
+                                        <p class="text-sm text-gray-500">商家: 文学书店</p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="bg-green-500 text-white p-2 rounded hover:bg-green-600 transition-colors">
+                                            <i class="fa fa-check"></i>
+                                        </button>
+                                        <button class="bg-red-500 text-white p-2 rounded hover:bg-red-600 transition-colors">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                    <img src="https://p26-doubao-search-sign.byteimg.com/tos-cn-i-be4g95zd3a/1927639613786161159~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=6jN%2FURu1PlnIZ2uAkaSNGLXGeB8%3D" alt="科技设计" class="w-12 h-16 object-cover rounded shadow">
+                                    <div class="ml-3 flex-grow">
+                                        <h4 class="font-medium text-gray-900">科技设计</h4>
+                                        <p class="text-sm text-gray-500">商家: 科技书局</p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="bg-green-500 text-white p-2 rounded hover:bg-green-600 transition-colors">
+                                            <i class="fa fa-check"></i>
+                                        </button>
+                                        <button class="bg-red-500 text-white p-2 rounded hover:bg-red-600 transition-colors">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                    <img src="https://p26-doubao-search-sign.byteimg.com/labis/87f3074fb6f103074ffcaf7c24f3a3f1~tplv-be4g95zd3a-image.jpeg?lk3s=feb11e32&x-expires=1788068297&x-signature=%2BteerrjiVZYuYaqguspFq%2BTwxyc%3D" alt="未来科技" class="w-12 h-16 object-cover rounded shadow">
+                                    <div class="ml-3 flex-grow">
+                                        <h4 class="font-medium text-gray-900">未来科技</h4>
+                                        <p class="text-sm text-gray-500">商家: 未来书店</p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="bg-green-500 text-white p-2 rounded hover:bg-green-600 transition-colors">
+                                            <i class="fa fa-check"></i>
+                                        </button>
+                                        <button class="bg-red-500 text-white p-2 rounded hover:bg-red-600 transition-colors">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-center">
+                                <button class="btn-secondary text-sm">查看全部</button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden p-6">
+                            <h3 class="text-lg font-bold mb-4">待审核商家</h3>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <h4 class="font-medium text-gray-900">知识书店</h4>
+                                    <p class="text-sm text-gray-500 mt-1">联系人: 张三</p>
+                                    <p class="text-sm text-gray-500">电话: 138****5678</p>
+                                    <p class="text-sm text-gray-500">邮箱: zhang***@example.com</p>
+                                    <div class="mt-3 flex space-x-2">
+                                        <button class="btn-primary text-sm py-1 px-3">审核</button>
+                                        <button class="btn-secondary text-sm py-1 px-3">查看详情</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <h4 class="font-medium text-gray-900">青年书局</h4>
+                                    <p class="text-sm text-gray-500 mt-1">联系人: 李四</p>
+                                    <p class="text-sm text-gray-500">电话: 139****4321</p>
+                                    <p class="text-sm text-gray-500">邮箱: li***@example.com</p>
+                                    <div class="mt-3 flex space-x-2">
+                                        <button class="btn-primary text-sm py-1 px-3">审核</button>
+                                        <button class="btn-secondary text-sm py-1 px-3">查看详情</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-center">
+                                <button class="btn-secondary text-sm">查看全部</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- 页脚 -->
+        <footer class="bg-gray-800 text-white py-10">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-4">
+                            <img src="https://p6-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/b21dc0796ef54290920428f66424ac64~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260303133651FB5248F5CDAD12A6B020&rrcfp=f06b921b&x-expires=1775108282&x-signature=N9h%2F5Rw3zVLCh2KSglPcKWTptT0%3D" alt="知书坊" class="h-10 w-10">
+                            <span class="text-xl font-bold">知书坊</span>
+                        </div>
+                        <p class="text-gray-400 mb-4">知书坊是一家专业的在线书店，提供各类优质书籍，满足您的阅读需求。</p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fa fa-weixin text-xl"></i>
+                            </a>
+                            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fa fa-weibo text-xl"></i>
+                            </a>
+                            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fa fa-qq text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">快速链接</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">分类</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">畅销榜</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">新书上架</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">关于我们</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">客户服务</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">帮助中心</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">配送方式</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">支付方式</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">退换货政策</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">联系我们</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">联系方式</h3>
+                        <ul class="space-y-2">
+                            <li class="flex items-center">
+                                <i class="fa fa-map-marker text-gray-400 mr-2"></i>
+                                <span class="text-gray-400">北京市朝阳区建国路88号</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fa fa-phone text-gray-400 mr-2"></i>
+                                <span class="text-gray-400">400-123-4567</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fa fa-envelope text-gray-400 mr-2"></i>
+                                <span class="text-gray-400">service@zhishufang.com</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fa fa-clock-o text-gray-400 mr-2"></i>
+                                <span class="text-gray-400">周一至周日 9:00-22:00</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+                    <p class="text-gray-400">&copy; 2025 知书坊在线书店 版权所有</p>
+                </div>
+            </div>
+        </footer>
+        
+        <!-- 返回顶部按钮 -->
+        <button id="back-to-top" class="fixed bottom-6 right-6 bg-primary text-white rounded-full p-3 shadow-lg opacity-0 invisible transition-all duration-300">
+            <i class="fa fa-arrow-up"></i>
+        </button>
+    </div>
+    
+    <!-- JavaScript -->
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化数据
+            initData();
+            
+            // 页面切换
+            const sections = document.querySelectorAll('.section');
+            const navLinks = document.querySelectorAll('[data-section]');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetSection = this.getAttribute('data-section');
+                    switchSection(targetSection);
+                });
+            });
+            
+            // 移动端菜单
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // 用户下拉菜单
+            const userBtn = document.getElementById('user-btn');
+            const userDropdown = document.getElementById('user-dropdown');
+            
+            userBtn.addEventListener('click', function() {
+                userDropdown.classList.toggle('hidden');
+            });
+            
+            // 点击其他地方关闭下拉菜单
+            document.addEventListener('click', function(e) {
+                if (!userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                    userDropdown.classList.add('hidden');
+                }
+            });
+            
+            // 购物车按钮
+            const cartBtn = document.getElementById('cart-btn');
+            
+            cartBtn.addEventListener('click', function() {
+                switchSection('cart');
+            });
+            
+            // 轮播图
+            const carouselItems = document.querySelectorAll('.carousel-item');
+            const indicators = document.querySelectorAll('[data-index]');
+            const prevBtn = document.getElementById('prev-slide');
+            const nextBtn = document.getElementById('next-slide');
+            let currentSlide = 0;
+            
+            function showSlide(index) {
+                carouselItems.forEach((item, i) => {
+                    item.style.opacity = i === index ? '1' : '0';
+                });
+                
+                indicators.forEach((indicator, i) => {
+                    indicator.style.opacity = i === index ? '1' : '0.5';
+                });
+                
+                currentSlide = index;
+            }
+            
+            function nextSlide() {
+                showSlide((currentSlide + 1) % carouselItems.length);
+            }
+            
+            function prevSlide() {
+                showSlide((currentSlide - 1 + carouselItems.length) % carouselItems.length);
+            }
+            
+            // 自动轮播
+            let slideInterval = setInterval(nextSlide, 5000);
+            
+            // 轮播图控制
+            prevBtn.addEventListener('click', function() {
+                clearInterval(slideInterval);
+                prevSlide();
+                slideInterval = setInterval(nextSlide, 5000);
+            });
+            
+            nextBtn.addEventListener('click', function() {
+                clearInterval(slideInterval);
+                nextSlide();
+                slideInterval = setInterval(nextSlide, 5000);
+            });
+            
+            indicators.forEach(indicator => {
+                indicator.addEventListener('click', function() {
+                    clearInterval(slideInterval);
+                    showSlide(parseInt(this.getAttribute('data-index')));
+                    slideInterval = setInterval(nextSlide, 5000);
+                });
+            });
+            
+            // 加入购物车
+            const addToCartBtns = document.querySelectorAll('.add-to-cart');
+            const cartCount = document.getElementById('cart-count');
+            
+            addToCartBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const currentCount = parseInt(cartCount.textContent);
+                    cartCount.textContent = currentCount + 1;
+                    
+                    // 显示购物车不为空
+                    document.getElementById('empty-cart').classList.add('hidden');
+                    document.getElementById('cart-list').classList.remove('hidden');
+                    
+                    // 添加动画效果
+                    this.classList.add('animate-pulse');
+                    setTimeout(() => {
+                        this.classList.remove('animate-pulse');
+                    }, 500);
+                });
+            });
+            
+            // 购物车数量调整
+            const quantityDecreaseBtns = document.querySelectorAll('.quantity-decrease');
+            const quantityIncreaseBtns = document.querySelectorAll('.quantity-increase');
+            const quantityInputs = document.querySelectorAll('.quantity');
+            
+            quantityDecreaseBtns.forEach((btn, index) => {
+                btn.addEventListener('click', function() {
+                    const input = quantityInputs[index];
+                    if (parseInt(input.value) > 1) {
+                        input.value = parseInt(input.value) - 1;
+                        updateSubtotal();
+                    }
+                });
+            });
+            
+            quantityIncreaseBtns.forEach((btn, index) => {
+                btn.addEventListener('click', function() {
+                    const input = quantityInputs[index];
+                    input.value = parseInt(input.value) + 1;
+                    updateSubtotal();
+                });
+            });
+            
+            quantityInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    if (parseInt(this.value) < 1) {
+                        this.value = 1;
+                    }
+                    updateSubtotal();
+                });
+            });
+            
+            function updateSubtotal() {
+                // 实际项目中这里会计算小计和总计
+                console.log('更新小计');
+            }
+            
+            // 删除购物车商品
+            const removeItemBtns = document.querySelectorAll('.remove-item');
+            
+            removeItemBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const cartItem = this.closest('.cart-item');
+                    cartItem.remove();
+                    
+                    // 更新购物车数量
+                    const currentCount = parseInt(cartCount.textContent);
+                    cartCount.textContent = currentCount - 1;
+                    
+                    // 检查购物车是否为空
+                    if (document.querySelectorAll('.cart-item').length === 0) {
+                        document.getElementById('empty-cart').classList.remove('hidden');
+                        document.getElementById('cart-list').classList.add('hidden');
+                    }
+                });
+            });
+            
+            // 全选功能
+            const selectAll = document.getElementById('select-all');
+            const selectAllBottom = document.getElementById('select-all-bottom');
+            const itemSelects = document.querySelectorAll('.item-select');
+            
+            function updateSelectAll() {
+                const allChecked = Array.from(itemSelects).every(checkbox => checkbox.checked);
+                selectAll.checked = allChecked;
+                selectAllBottom.checked = allChecked;
+            }
+            
+            selectAll.addEventListener('change', function() {
+                itemSelects.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                selectAllBottom.checked = this.checked;
+            });
+            
+            selectAllBottom.addEventListener('change', function() {
+                itemSelects.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                selectAll.checked = this.checked;
+            });
+            
+            itemSelects.forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectAll);
+            });
+            
+            // 返回顶部按钮
+            const backToTopBtn = document.getElementById('back-to-top');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('opacity-0', 'invisible');
+                    backToTopBtn.classList.add('opacity-100', 'visible');
+                } else {
+                    backToTopBtn.classList.remove('opacity-100', 'visible');
+                    backToTopBtn.classList.add('opacity-0', 'invisible');
+                }
+            });
+            
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // 表单提交
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const sellerRegisterForm = document.getElementById('seller-register-form');
+            const adminLoginForm = document.getElementById('admin-login-form');
+            
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const username = document.getElementById('username').value;
+                    const password = document.getElementById('password').value;
+                    
+                    // 模拟登录验证
+                    if (username === 'admin' && password === 'admin') {
+                        // 管理员登录
+                        switchSection('admin-dashboard');
+                        showAdminLinks();
+                    } else if (username === 'seller' && password === 'seller') {
+                        // 商家登录
+                        switchSection('seller-dashboard');
+                        showSellerLinks();
+                    } else if (username && password) {
+                        // 普通用户登录
+                        switchSection('home');
+                        showUserLinks();
+                    }
+                });
+            }
+            
+            if (registerForm) {
+                registerForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // 模拟注册成功
+                    switchSection('login');
+                });
+            }
+            
+            if (sellerRegisterForm) {
+                sellerRegisterForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // 模拟提交成功
+                    alert('申请已提交，我们将在1-3个工作日内审核');
+                    switchSection('login');
+                });
+            }
+            
+            if (adminLoginForm) {
+                adminLoginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const username = document.getElementById('admin-username').value;
+                    const password = document.getElementById('admin-password').value;
+                    
+                    // 模拟管理员登录验证
+                    if (username === 'admin' && password === 'admin') {
+                        switchSection('admin-dashboard');
+                        showAdminLinks();
+                    }
+                });
+            }
+            
+            // 初始化图表
+            initCharts();
+        });
+        
+        // 初始化数据
+        function initData() {
+            // 模拟数据，实际项目中会从服务器获取
+            console.log('初始化数据');
+        }
+        
+        // 切换页面
+        function switchSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            
+            sections.forEach(section => {
+                if (section.id === sectionId) {
+                    section.classList.remove('hidden');
+                    section.classList.add('animate-fade-in');
+                } else {
+                    section.classList.add('hidden');
+                    section.classList.remove('animate-fade-in');
+                }
+            });
+            
+            // 关闭移动端菜单
+            document.getElementById('mobile-menu').classList.add('hidden');
+            
+            // 关闭用户下拉菜单
+            document.getElementById('user-dropdown').classList.add('hidden');
+            
+            // 滚动到顶部
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        // 显示用户链接
+        function showUserLinks() {
+            document.getElementById('profile-link').classList.remove('hidden');
+            document.getElementById('logout-link').classList.remove('hidden');
+        }
+        
+        // 显示商家链接
+        function showSellerLinks() {
+            document.getElementById('profile-link').classList.remove('hidden');
+            document.getElementById('seller-link').classList.remove('hidden');
+            document.getElementById('logout-link').classList.remove('hidden');
+        }
+        
+        // 显示管理员链接
+        function showAdminLinks() {
+            document.getElementById('profile-link').classList.remove('hidden');
+            document.getElementById('admin-link').classList.remove('hidden');
+            document.getElementById('logout-link').classList.remove('hidden');
+        }
+        
+        // 初始化图表
+        function initCharts() {
+            // 销售趋势图表
+            const salesChart = document.getElementById('sales-chart');
+            if (salesChart) {
+                new Chart(salesChart, {
+                    type: 'line',
+                    data: {
+                        labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                        datasets: [{
+                            label: '销售额',
+                            data: [1200, 1900, 1500, 2500, 2200, 3000, 2800],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 管理员销售图表
+            const adminSalesChart = document.getElementById('admin-sales-chart');
+            if (adminSalesChart) {
+                new Chart(adminSalesChart, {
+                    type: 'bar',
+                    data: {
+                        labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                        datasets: [{
+                            label: '销售额',
+                            data: [50000, 65000, 75000, 90000, 100000, 120000],
+                            backgroundColor: '#3b82f6'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 用户增长图表
+            const userGrowthChart = document.getElementById('user-growth-chart');
+            if (userGrowthChart) {
+                new Chart(userGrowthChart, {
+                    type: 'line',
+                    data: {
+                        labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                        datasets: [{
+                            label: '用户数',
+                            data: [8000, 9500, 10500, 11200, 12000, 12458],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 分类分布图表
+            const categoryChart = document.getElementById('category-chart');
+            if (categoryChart) {
+                new Chart(categoryChart, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['文学小说', '科技', '历史', '艺术', '经管', '教育'],
+                        datasets: [{
+                            data: [35, 20, 15, 10, 12, 8],
+                            backgroundColor: [
+                                '#3b82f6',
+                                '#10b981',
+                                '#f59e0b',
+                                '#ef4444',
+                                '#8b5cf6',
+                                '#ec4899'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

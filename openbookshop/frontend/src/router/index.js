@@ -17,7 +17,7 @@ const routes = [
     component: () => import('@/layouts/UserLayout.vue'),
     meta: { requiresAuth: true },
     children: [
-      { path: '', redirect: '/books' },
+      { path: '', name: 'Home', component: () => import('@/views/user/HomeView.vue') },
       { path: 'books', name: 'BookList', component: () => import('@/views/user/BookListView.vue') },
       { path: 'books/:id', name: 'BookDetail', component: () => import('@/views/user/BookDetailView.vue') },
       { path: 'cart', name: 'Cart', component: () => import('@/views/user/CartView.vue') },

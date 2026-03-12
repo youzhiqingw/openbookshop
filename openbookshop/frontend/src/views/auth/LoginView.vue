@@ -95,7 +95,7 @@ function getDefaultRoute() {
   color: #666666;
 
   a {
-    color: #2C5F2D;
+    color: #1e40af;
     &:hover { text-decoration: underline; }
   }
 }

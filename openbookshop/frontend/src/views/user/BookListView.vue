@@ -1,5 +1,24 @@
 <template>
   <div class="book-list-page">
+    <!-- Category Icons Section -->
+    <div class="category-section">
+      <h2 class="section-title">分类导航</h2>
+      <div class="category-grid">
+        <a
+          v-for="cat in categories.slice(0, 8)"
+          :key="cat.id"
+          class="category-item"
+          @click="selectCategory(cat.id)"
+          :class="{ active: selectedCategory === cat.id }"
+        >
+          <div class="category-icon">
+            <span>{{ getCatEmoji(cat.name) }}</span>
+          </div>
+          <span class="cat-label">{{ cat.name }}</span>
+        </a>
+      </div>
+    </div>
+
     <!-- Search & Filter -->
     <el-card class="filter-card">
       <el-row :gutter="16" align="middle">
@@ -40,6 +59,12 @@
         </el-col>
       </el-row>
     </el-card>
+
+    <!-- Section Header -->
+    <div class="books-header">
+      <h2 class="books-title">全部书籍</h2>
+      <span class="books-count">共 {{ total }} 本</span>
+    </div>
 
     <!-- Book Grid -->
     <div v-loading="loading" class="book-grid">
@@ -97,11 +122,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { bookApi } from '@/api'
 import { useCartStore } from '@/stores/cart'
 
 const router = useRouter()
+const route = useRoute()
 const cartStore = useCartStore()
 
 const books = ref([])
@@ -161,7 +187,23 @@ async function addToCart(bookId) {
   await cartStore.addToCart(bookId)
 }
 
+function getCatEmoji(name) {
+  const map = { '文学': '📖', '小说': '📝', '科技': '🔬', '历史': '📜', '艺术': '🎨', '经管': '💼', '教育': '🎓', '科幻': '🚀', '生活': '🌿', '儿童': '🧸' }
+  for (const [key, emoji] of Object.entries(map)) {
+    if (name.includes(key)) return emoji
+  }
+  return '📚'
+}
+
+function selectCategory(id) {
+  selectedCategory.value = selectedCategory.value === id ? null : id
+  search()
+}
+
 onMounted(() => {
+  // Apply query params from URL (e.g. from HomeView navigation or search)
+  if (route.query.search) searchQuery.value = String(route.query.search)
+  if (route.query.category) selectedCategory.value = Number(route.query.category)
   fetchCategories()
   fetchBooks()
 })
@@ -174,9 +216,103 @@ onMounted(() => {
   padding: 24px 20px;
 }
 
+/* Category Section */
+.category-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 16px;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 12px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 12px 8px;
+  border-radius: 10px;
+  transition: background 0.2s, transform 0.2s;
+  text-decoration: none;
+
+  &:hover {
+    background: #eff6ff;
+    transform: translateY(-2px);
+  }
+
+  &.active {
+    background: #dbeafe;
+
+    .category-icon { border-color: #1e40af; }
+    .cat-label { color: #1e40af; font-weight: 600; }
+  }
+
+  .category-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #eff6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  .cat-label {
+    font-size: 12px;
+    color: #374151;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60px;
+  }
+}
+
+/* Filter Card */
 .filter-card {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   border-radius: 8px;
+}
+
+/* Books Header */
+.books-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  .books-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+  }
+
+  .books-count {
+    font-size: 13px;
+    color: #6b7280;
+  }
 }
 
 .book-grid {
@@ -202,7 +338,7 @@ onMounted(() => {
   width: 100%;
   height: 180px;
   overflow: hidden;
-  background: #F5F5F5;
+  background: #f3f4f6;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -225,7 +361,7 @@ onMounted(() => {
   .book-title {
     font-size: 14px;
     font-weight: 600;
-    color: #1A1A1A;
+    color: #1a1a1a;
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -237,7 +373,7 @@ onMounted(() => {
 
   .book-author {
     font-size: 12px;
-    color: #666666;
+    color: #6b7280;
     margin-bottom: 10px;
     white-space: nowrap;
     overflow: hidden;
@@ -253,12 +389,12 @@ onMounted(() => {
     .price {
       font-size: 16px;
       font-weight: 700;
-      color: #C75B39;
+      color: #1e40af;
     }
 
     .sales {
       font-size: 12px;
-      color: #999999;
+      color: #9ca3af;
     }
   }
 

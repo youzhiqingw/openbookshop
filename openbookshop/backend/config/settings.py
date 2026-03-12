@@ -19,7 +19,82 @@ ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
 AUTH_USER_MODEL = 'users.User'
 
+JAZZMIN_SETTINGS = {
+    # 标题
+    "site_title": "OpenBookShop 管理后台",
+    "site_header": "OpenBookShop",
+    "site_brand": "📚 OpenBookShop",
+    "welcome_sign": "欢迎登录 OpenBookShop 管理后台",
+    "copyright": "OpenBookShop",
+
+    # 顶部导航搜索
+    "search_model": ["auth.User", "books.Book"],
+
+    # 顶部导航链接
+    "topmenu_links": [
+        {"name": "首页", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "前台", "url": "http://localhost", "new_window": True},
+    ],
+
+    # 侧边栏图标（Font Awesome 5）
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "users.user": "fas fa-user-circle",
+        "books.book": "fas fa-book",
+        "orders.order": "fas fa-shopping-cart",
+        "merchants.merchant": "fas fa-store",
+    },
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+
+    # UI 配置
+    "related_modal_active": True,
+    "custom_css": None,
+    "custom_js": None,
+    "use_google_fonts_cdn": False,
+    "show_ui_builder": False,
+
+    # 侧边栏配色方案
+    "changeform_format": "horizontal_tabs",
+    "language_chooser": False,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-primary",
+    "accent": "accent-primary",
+    "navbar": "navbar-dark",
+    "no_navbar_border": False,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "default",
+    "dark_mode_theme": None,
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success",
+    },
+}
+
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
