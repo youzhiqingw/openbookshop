@@ -1,0 +1,113 @@
+name: Django CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install Dependencies
+      run: |
+        cd openbookshop/backend
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run Django Tests
+      run: |
+        cd openbookshop/backend
+        python manage.py test
+      env:
+        DATABASE_URL: postgres://testuser:testpass@localhost:5432/testdb
+        SECRET_KEY: test-secret-key-for-ci
+
+    - name: Check Code Style
+      run: |
+        cd openbookshop/backend
+        pip install black flake8
+        black --check .
+        flake8 .
+
+  frontend-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: openbookshop/frontend/package-lock.json
+
+    - name: Install Dependencies
+      run: |
+        cd openbookshop/frontend
+        npm ci
+
+    - name: Run Frontend Tests
+      run: |
+        cd openbookshop/frontend
+        npm run test:unit
+
+    - name: Build Frontend
+      run: |
+        cd openbookshop/frontend
+        npm run build
+
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install Safety
+      run: |
+        pip install safety
+
+    - name: Check Python Dependencies for Vulnerabilities
+      run: |
+        cd openbookshop/backend
+        safety check -r requirements.txt
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Check Node.js Dependencies for Vulnerabilities
+      run: |
+        cd openbookshop/frontend
+        npm audit --audit-level=high

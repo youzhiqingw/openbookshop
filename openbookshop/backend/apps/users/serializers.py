@@ -18,7 +18,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             'password': {'write_only': True},
             'email': {'required': False},
             'phone': {'required': False},
-            'role': {'required': False},
+            'role': {'required': False, 'default': 'customer'},
         }
 
     def validate_password2(self, value):
@@ -27,15 +27,23 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def validate_role(self, value):
-        if value not in ('customer', 'merchant'):
-            raise serializers.ValidationError("注册角色只能选择普通用户或商家")
+        # 注册时允许任何有效角色，但后台管理会进一步控制
+        if value not in ('customer', 'merchant', 'admin'):
+            raise serializers.ValidationError("角色必须为：customer, merchant, 或 admin")
         return value
 
     def create(self, validated_data):
-        validated_data.pop('password2')
+        validated_data.pop('password2', None)
         password = validated_data.pop('password')
+        role = validated_data.get('role', 'customer')
+        
         user = User(**validated_data)
         user.set_password(password)
+        
+        # 根据角色设置 is_staff（Django后台登录需要）
+        if role in ('admin', 'merchant'):
+            user.is_staff = True
+        
         user.save()
         return user
 
@@ -53,9 +61,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'phone', 'avatar', 'role',
-                  'is_vip', 'vip_level', 'points', 'date_joined']
+                  'is_vip', 'vip_level', 'points', 'is_staff', 'date_joined']
         read_only_fields = ['id', 'username', 'role', 'is_vip', 'vip_level',
-                           'points', 'date_joined']
+                           'points', 'is_staff', 'date_joined']
 
 
 class ChangePasswordSerializer(serializers.Serializer):

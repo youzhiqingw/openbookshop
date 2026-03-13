@@ -1,6 +1,14 @@
 <template>
   <div class="book-list-page">
-    <!-- Category Icons Section -->
+    <div class="books-hero">
+      <div>
+        <p class="hero-kicker">CURATED SHELF</p>
+        <h1>书城</h1>
+        <p class="hero-desc">按兴趣、销量与价格快速筛选，找到你下一本想读的书。</p>
+      </div>
+      <div class="hero-summary">已收录 {{ total }} 本图书</div>
+    </div>
+
     <div class="category-section">
       <h2 class="section-title">分类导航</h2>
       <div class="category-grid">
@@ -19,7 +27,6 @@
       </div>
     </div>
 
-    <!-- Search & Filter -->
     <el-card class="filter-card">
       <el-row :gutter="16" align="middle">
         <el-col :span="10">
@@ -60,13 +67,11 @@
       </el-row>
     </el-card>
 
-    <!-- Section Header -->
     <div class="books-header">
       <h2 class="books-title">全部书籍</h2>
       <span class="books-count">共 {{ total }} 本</span>
     </div>
 
-    <!-- Book Grid -->
     <div v-loading="loading" class="book-grid">
       <el-empty v-if="!loading && !books.length" description="暂无图书" />
       <el-row :gutter="20">
@@ -107,7 +112,6 @@
       </el-row>
     </div>
 
-    <!-- Pagination -->
     <div class="pagination-wrap">
       <el-pagination
         v-model:current-page="currentPage"
@@ -213,23 +217,70 @@ onMounted(() => {
 .book-list-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px 20px;
+  padding: 0 12px 24px;
 }
 
-/* Category Section */
+.books-hero {
+  margin-bottom: 18px;
+  padding: 24px 26px;
+  border-radius: 22px;
+  border: 1px solid #dce8d4;
+  background:
+    radial-gradient(circle at 86% 20%, rgba(231, 255, 225, 0.72) 0%, rgba(231, 255, 225, 0) 32%),
+    linear-gradient(136deg, #eaf4e6 0%, #f5f8ee 70%);
+  box-shadow: 0 22px 36px -34px rgba(41, 56, 36, 0.95);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: end;
+
+  .hero-kicker {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #5f7a5f;
+    margin: 0 0 8px;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: 'STZhongsong', 'KaiTi', serif;
+    color: #1f3426;
+    font-size: 34px;
+  }
+
+  .hero-desc {
+    margin: 8px 0 0;
+    color: #546857;
+    font-size: 14px;
+  }
+
+  .hero-summary {
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.84);
+    border: 1px solid #d8e3d2;
+    padding: 8px 12px;
+    border-radius: 999px;
+    color: #2b5635;
+    font-size: 13px;
+    font-weight: 600;
+  }
+}
+
 .category-section {
-  background: #fff;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 16px;
   padding: 24px;
   margin-bottom: 20px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5ecdf;
+  box-shadow: 0 18px 30px -30px rgba(28, 33, 23, 0.78);
 }
 
 .section-title {
   font-size: 18px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #203427;
   margin: 0 0 16px;
+  font-family: 'STZhongsong', 'KaiTi', serif;
 }
 
 .category-grid {
@@ -249,27 +300,30 @@ onMounted(() => {
   gap: 8px;
   cursor: pointer;
   padding: 12px 8px;
-  border-radius: 10px;
+  border-radius: 14px;
+  border: 1px solid transparent;
   transition: background 0.2s, transform 0.2s;
   text-decoration: none;
 
   &:hover {
-    background: #eff6ff;
+    background: #edf5e8;
+    border-color: #d7e3cf;
     transform: translateY(-2px);
   }
 
   &.active {
-    background: #dbeafe;
+    background: #e2efdc;
+    border-color: #bbd2b6;
 
-    .category-icon { border-color: #1e40af; }
-    .cat-label { color: #1e40af; font-weight: 600; }
+    .category-icon { border-color: #2f6d45; }
+    .cat-label { color: #21583a; font-weight: 600; }
   }
 
   .category-icon {
     width: 52px;
     height: 52px;
-    border-radius: 50%;
-    background: #eff6ff;
+    border-radius: 14px;
+    background: #eff6ea;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -280,7 +334,7 @@ onMounted(() => {
 
   .cat-label {
     font-size: 12px;
-    color: #374151;
+    color: #39513d;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
@@ -292,10 +346,32 @@ onMounted(() => {
 /* Filter Card */
 .filter-card {
   margin-bottom: 20px;
-  border-radius: 8px;
+  border-radius: 16px;
+  border: 1px solid #e0e8da;
+
+  :deep(.el-card__body) {
+    padding: 18px;
+  }
+
+  :deep(.el-input__wrapper),
+  :deep(.el-select__wrapper) {
+    border: 1px solid #d2decb;
+    box-shadow: none;
+    border-radius: 10px;
+  }
+
+  :deep(.el-input-group__append) {
+    border-color: #2c6541;
+    background: #2c6541;
+    color: #fff;
+
+    .el-button {
+      color: #fff;
+      border: none;
+    }
+  }
 }
 
-/* Books Header */
 .books-header {
   display: flex;
   align-items: center;
@@ -305,13 +381,13 @@ onMounted(() => {
   .books-title {
     font-size: 18px;
     font-weight: 700;
-    color: #1a1a1a;
+    color: #263828;
     margin: 0;
   }
 
   .books-count {
     font-size: 13px;
-    color: #6b7280;
+    color: #667864;
   }
 }
 
@@ -322,23 +398,27 @@ onMounted(() => {
 .book-card {
   margin-bottom: 24px;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 16px;
   overflow: hidden;
-  transition: box-shadow 0.3s, transform 0.3s;
+  border: 1px solid #e3eade;
+  transition: box-shadow 0.28s, transform 0.28s, border-color 0.28s;
 
   &:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    transform: translateY(-4px);
+    box-shadow: 0 28px 38px -34px rgba(20, 32, 17, 0.92);
+    transform: translateY(-6px);
+    border-color: #c9d8c2;
   }
 
-  :deep(.el-card__body) { padding: 0; }
+  :deep(.el-card__body) {
+    padding: 0;
+  }
 }
 
 .book-cover {
   width: 100%;
   height: 180px;
   overflow: hidden;
-  background: #f3f4f6;
+  background: linear-gradient(146deg, #ecf2ea, #f8faf7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -347,12 +427,17 @@ onMounted(() => {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.28s;
   }
 
   .cover-placeholder {
     font-size: 48px;
-    color: #ccc;
+    color: #b7c6b5;
   }
+}
+
+.book-card:hover .cover-img {
+  transform: scale(1.03);
 }
 
 .book-info {
@@ -361,7 +446,7 @@ onMounted(() => {
   .book-title {
     font-size: 14px;
     font-weight: 600;
-    color: #1a1a1a;
+    color: #203126;
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -373,7 +458,7 @@ onMounted(() => {
 
   .book-author {
     font-size: 12px;
-    color: #6b7280;
+    color: #657565;
     margin-bottom: 10px;
     white-space: nowrap;
     overflow: hidden;
@@ -389,17 +474,20 @@ onMounted(() => {
     .price {
       font-size: 16px;
       font-weight: 700;
-      color: #1e40af;
+      color: #2b6038;
     }
 
     .sales {
       font-size: 12px;
-      color: #9ca3af;
+      color: #849284;
     }
   }
 
   .cart-btn {
     width: 100%;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(130deg, #2f6d45, #225739);
   }
 }
 
@@ -407,5 +495,27 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   margin-top: 24px;
+
+  :deep(.el-pager li.is-active) {
+    background: #2f6d45;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 900px) {
+  .books-hero {
+    flex-direction: column;
+    align-items: flex-start;
+
+    h1 {
+      font-size: 30px;
+    }
+  }
+
+  .filter-card {
+    :deep(.el-col) {
+      margin-bottom: 10px;
+    }
+  }
 }
 </style>

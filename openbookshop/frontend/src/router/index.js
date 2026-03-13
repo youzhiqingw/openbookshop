@@ -11,6 +11,12 @@ const routes = [
       { path: 'register', name: 'Register', component: () => import('@/views/auth/RegisterView.vue') },
     ],
   },
+  // Admin Login
+  {
+    path: '/admin/login',
+    name: 'AdminLogin',
+    component: () => import('@/views/auth/AdminLoginView.vue'),
+  },
   // User routes
   {
     path: '/',
@@ -36,7 +42,7 @@ const routes = [
     meta: { requiresAuth: true, requiresAdmin: true },
     children: [
       { path: '', redirect: '/admin/dashboard' },
-      { path: 'dashboard', name: 'AdminDashboard', component: () => import('@/views/admin/DashboardView.vue') },
+      { path: 'dashboard', name: 'AdminDashboard', component: () => import('@/views/admin/AdminDashboard.vue') },
       { path: 'users', name: 'AdminUsers', component: () => import('@/views/admin/UserListView.vue') },
       { path: 'merchants', name: 'AdminMerchants', component: () => import('@/views/admin/MerchantListView.vue') },
       { path: 'books', name: 'AdminBooks', component: () => import('@/views/admin/BookManageView.vue') },

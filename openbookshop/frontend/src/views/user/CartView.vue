@@ -1,9 +1,17 @@
 <template>
   <div class="cart-page">
-    <el-card>
+    <div class="cart-head">
+      <div>
+        <p class="head-kicker">YOUR SHELF</p>
+        <h1>购物车</h1>
+      </div>
+      <div class="cart-summary">共 {{ cartStore.totalCount }} 件商品</div>
+    </div>
+
+    <el-card class="cart-card">
       <template #header>
         <div class="card-header">
-          <span>购物车（{{ cartStore.totalCount }} 件商品）</span>
+          <span>已添加商品</span>
           <el-button type="danger" text @click="clearCart" :disabled="!cartStore.items.length">
             清空购物车
           </el-button>
@@ -119,14 +127,67 @@ onMounted(() => cartStore.fetchCart())
 <style lang="scss" scoped>
 .cart-page {
   max-width: 1000px;
-  margin: 20px auto;
-  padding: 0 20px;
+  margin: 0 auto;
+  padding: 0 12px 28px;
+}
+
+.cart-head {
+  margin-bottom: 16px;
+  padding: 20px 22px;
+  border-radius: 20px;
+  border: 1px solid #dde8d7;
+  background:
+    radial-gradient(circle at 18% 16%, rgba(230, 249, 224, 0.9) 0%, rgba(230, 249, 224, 0) 40%),
+    linear-gradient(130deg, #f2f8ef 0%, #fbfdf8 100%);
+  box-shadow: 0 20px 36px -34px rgba(42, 56, 35, 0.95);
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+
+  .head-kicker {
+    margin: 0 0 6px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #5e775f;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 32px;
+    font-family: 'STZhongsong', 'KaiTi', serif;
+    color: #203427;
+  }
+
+  .cart-summary {
+    border-radius: 999px;
+    border: 1px solid #d4e0ce;
+    background: rgba(255, 255, 255, 0.85);
+    color: #2d5c39;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 12px;
+  }
+}
+
+.cart-card {
+  border-radius: 16px;
+  border: 1px solid #e0e8db;
+  box-shadow: 0 26px 40px -36px rgba(35, 44, 30, 0.95);
+
+  :deep(.el-card__header) {
+    border-bottom: 1px solid #e8eee2;
+  }
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  span {
+    font-weight: 600;
+    color: #273929;
+  }
 }
 
 .cart-list {
@@ -141,8 +202,15 @@ onMounted(() => cartStore.fetchCart())
   align-items: center;
   gap: 16px;
   padding: 16px;
-  border: 1px solid #eee;
-  border-radius: 8px;
+  border: 1px solid #e5ebdf;
+  border-radius: 12px;
+  background: #fff;
+  transition: border-color 0.25s, box-shadow 0.25s;
+
+  &:hover {
+    border-color: #cddbc8;
+    box-shadow: 0 14px 24px -26px rgba(34, 47, 30, 0.95);
+  }
 
   .item-check { flex-shrink: 0; }
 
@@ -151,11 +219,11 @@ onMounted(() => cartStore.fetchCart())
     height: 100px;
     flex-shrink: 0;
     cursor: pointer;
-    background: #f5f7fa;
+    background: linear-gradient(140deg, #edf4ea, #f7faf4);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
+    border-radius: 8px;
     overflow: hidden;
 
     .cover-img {
@@ -164,7 +232,7 @@ onMounted(() => cartStore.fetchCart())
       object-fit: cover;
     }
 
-    .cover-placeholder { font-size: 32px; color: #ccc; }
+    .cover-placeholder { font-size: 32px; color: #b9c7b7; }
   }
 
   .item-info {
@@ -172,22 +240,29 @@ onMounted(() => cartStore.fetchCart())
     cursor: pointer;
 
     .item-title {
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 15px;
+      font-weight: 600;
       margin-bottom: 4px;
+      color: #243726;
     }
 
-    .item-author { font-size: 12px; color: #999; margin-bottom: 8px; }
-    .item-price { color: #e6a23c; font-weight: bold; }
+    .item-author { font-size: 12px; color: #6d7f6f; margin-bottom: 8px; }
+    .item-price { color: #2f6440; font-weight: 700; }
   }
 
-  .item-quantity { flex-shrink: 0; }
+  .item-quantity {
+    flex-shrink: 0;
+
+    :deep(.el-input-number) {
+      border-radius: 10px;
+    }
+  }
 
   .item-subtotal {
     width: 80px;
     text-align: right;
-    font-weight: bold;
-    color: #e6a23c;
+    font-weight: 700;
+    color: #c96845;
     flex-shrink: 0;
   }
 }
@@ -197,15 +272,19 @@ onMounted(() => cartStore.fetchCart())
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  background: #f5f7fa;
-  border-radius: 8px;
+  background: linear-gradient(120deg, #f2f7ed, #f8fbf4);
+  border-radius: 12px;
+  border: 1px solid #dde8d6;
+  position: sticky;
+  bottom: 12px;
+  z-index: 5;
 
   .bar-left {
     display: flex;
     align-items: center;
     gap: 16px;
 
-    .selected-info { color: #666; font-size: 14px; }
+    .selected-info { color: #607261; font-size: 14px; }
   }
 
   .bar-right {
@@ -215,7 +294,56 @@ onMounted(() => cartStore.fetchCart())
 
     .total-amount {
       font-size: 16px;
-      strong { font-size: 22px; color: #e6a23c; }
+      color: #4a5d4d;
+
+      strong {
+        font-size: 24px;
+        color: #cc6947;
+      }
+    }
+
+    :deep(.el-button) {
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(130deg, #2f6d45, #205438);
+      padding: 12px 26px;
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .cart-item {
+    flex-wrap: wrap;
+
+    .item-info {
+      min-width: 180px;
+    }
+
+    .item-subtotal {
+      width: auto;
+      margin-left: auto;
+    }
+  }
+
+  .checkout-bar {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+
+    .bar-right {
+      justify-content: space-between;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .cart-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+
+    h1 {
+      font-size: 28px;
     }
   }
 }

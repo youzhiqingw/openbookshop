@@ -1,10 +1,12 @@
 <template>
-  <el-container class="admin-layout">
+  <div class="admin-layout">
     <!-- Sidebar -->
-    <el-aside :width="isCollapsed ? '64px' : '220px'" class="sidebar" :class="{ collapsed: isCollapsed }">
+    <aside class="sidebar" :class="{ collapsed: isCollapsed }">
       <div class="sidebar-logo">
-        <span class="logo-icon">📚</span>
-        <span v-show="!isCollapsed" class="logo-text">管理后台</span>
+        <div class="logo-icon">
+          <el-icon><Management /></el-icon>
+        </div>
+        <span v-show="!isCollapsed" class="logo-text">管理系统</span>
       </div>
 
       <el-menu

@@ -85,14 +85,13 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 import { ElMessage } from 'element-plus'
 import { onMounted } from 'vue'
 import { Search, ArrowDown } from '@element-plus/icons-vue'
 
-const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
@@ -127,16 +126,20 @@ async function handleCommand(command) {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f8fafc;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(206, 232, 208, 0.7) 0%, rgba(206, 232, 208, 0) 34%),
+    radial-gradient(circle at 88% 10%, rgba(253, 234, 203, 0.66) 0%, rgba(253, 234, 203, 0) 30%),
+    #f6f3ed;
 }
 
 .header {
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(130deg, rgba(255, 255, 255, 0.92), rgba(249, 246, 241, 0.9));
+  border-bottom: 1px solid #d8d3c8;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 26px -22px rgba(41, 45, 30, 0.55);
 }
 
 .header-inner {
@@ -145,40 +148,49 @@ async function handleCommand(command) {
   height: 64px;
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 18px;
   padding: 0 24px;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
   flex-shrink: 0;
 
-  .logo-icon { font-size: 24px; }
+  .logo-icon {
+    font-size: 24px;
+    filter: saturate(1.2);
+  }
 
   .logo-text {
-    font-size: 20px;
+    font-size: 21px;
     font-weight: 700;
-    color: #1e40af;
-    letter-spacing: 0.5px;
+    color: #1f3b2a;
+    letter-spacing: 1px;
     white-space: nowrap;
+    font-family: 'STZhongsong', 'KaiTi', serif;
   }
 }
 
 .search-bar {
   flex: 1;
-  max-width: 480px;
+  max-width: 520px;
 
   .search-input {
+    :deep(.el-input-group__append),
+    :deep(.el-input-group__prepend) {
+      border-color: #c8d3c8;
+    }
+
     :deep(.el-input-group__append) {
-      background: #1e40af;
+      background: linear-gradient(140deg, #2f6b46, #21553a);
       color: #fff;
-      border-color: #1e40af;
+      border-color: #21553a;
       cursor: pointer;
 
-      &:hover { background: #1e3a8a; }
+      &:hover { background: linear-gradient(140deg, #3a7f54, #2a6846); }
 
       button {
         color: #fff;
@@ -188,9 +200,15 @@ async function handleCommand(command) {
     }
 
     :deep(.el-input__wrapper) {
-      border-color: #dbeafe;
+      border: 1px solid #c8d3c8;
+      box-shadow: none;
+      background: rgba(255, 255, 255, 0.85);
 
-      &:hover { border-color: #3b82f6; }
+      &.is-focus {
+        border-color: #2f6b46;
+      }
+
+      &:hover { border-color: #7ba587; }
     }
   }
 }
@@ -198,28 +216,30 @@ async function handleCommand(command) {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   flex-shrink: 0;
 
   .nav-link {
-    padding: 6px 12px;
-    border-radius: 6px;
+    padding: 8px 12px;
+    border-radius: 999px;
     font-size: 14px;
-    color: #374151;
+    color: #485946;
     text-decoration: none;
-    transition: color 0.2s, background 0.2s;
+    transition: color 0.25s, background 0.25s, transform 0.25s;
     white-space: nowrap;
     position: relative;
+    font-weight: 500;
 
     &:hover {
-      color: #1e40af;
-      background: #eff6ff;
+      color: #1f3b2a;
+      background: #e4efdf;
+      transform: translateY(-1px);
     }
 
     &.router-link-active {
-      color: #1e40af;
+      color: #12311f;
       font-weight: 600;
-      background: #eff6ff;
+      background: linear-gradient(120deg, #d7e9d2, #e8f4e5);
     }
 
     .cart-badge {
@@ -237,14 +257,17 @@ async function handleCommand(command) {
     align-items: center;
     gap: 8px;
     cursor: pointer;
-    color: #374151;
-    padding: 4px 8px;
-    border-radius: 8px;
-    transition: background 0.2s;
+    color: #344436;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid #d6ddd0;
+    transition: background 0.22s, border-color 0.22s;
+    background: rgba(255, 255, 255, 0.72);
 
     &:hover {
-      background: #f3f4f6;
-      color: #1e40af;
+      background: #f3f7ef;
+      color: #1f3b2a;
+      border-color: #b7cab5;
     }
 
     .username {
@@ -259,13 +282,14 @@ async function handleCommand(command) {
 
 .main-content {
   flex: 1;
-  padding: 24px;
+  padding: 28px 20px 36px;
 }
 
 .footer {
-  background: #1e3a8a;
-  color: #cbd5e1;
+  background: linear-gradient(120deg, #22342a, #18241d);
+  color: #cfd9cc;
   padding: 32px 24px 24px;
+  border-top: 1px solid rgba(197, 216, 200, 0.26);
 
   .footer-inner {
     max-width: 1280px;
@@ -276,12 +300,12 @@ async function handleCommand(command) {
   .footer-logo {
     font-size: 20px;
     font-weight: 700;
-    color: #fff;
+    color: #f3fbf0;
   }
 
   .footer-desc {
     font-size: 13px;
-    color: #94a3b8;
+    color: #93aa96;
     margin: 8px 0 20px;
   }
 
@@ -296,14 +320,44 @@ async function handleCommand(command) {
       cursor: pointer;
       transition: color 0.2s;
 
-      &:hover { color: #fff; }
+      &:hover { color: #f7fff5; }
     }
   }
 
   .footer-copy {
     font-size: 12px;
-    color: #64748b;
+    color: #708474;
     margin: 0;
+  }
+}
+
+@media (max-width: 980px) {
+  .header-inner {
+    gap: 12px;
+    padding: 0 14px;
+  }
+
+  .search-bar {
+    max-width: none;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .main-content {
+    padding: 22px 12px 28px;
+  }
+}
+
+@media (max-width: 680px) {
+  .logo .logo-text {
+    display: none;
+  }
+
+  .footer .footer-links {
+    gap: 14px;
+    flex-wrap: wrap;
   }
 }
 </style>
