@@ -1,4 +1,5 @@
 """模拟支付服务 - 不调用真实支付API"""
+
 import random
 import uuid
 from decimal import Decimal
@@ -10,7 +11,9 @@ class MockPaymentService:
     # 模拟支付成功率（90%）
     SUCCESS_RATE = 0.9
 
-    def create_order(self, order_id: int, amount: Decimal, payment_method: str = 'mock') -> dict:
+    def create_order(
+        self, order_id: int, amount: Decimal, payment_method: str = "mock"
+    ) -> dict:
         """
         创建模拟支付订单
         :param order_id: 系统订单ID
@@ -21,11 +24,11 @@ class MockPaymentService:
         mock_order_id = f"MOCK_{order_id}_{uuid.uuid4().hex[:8].upper()}"
         pay_url = f"http://mock-pay.local/pay?order={mock_order_id}&amount={amount}"
         return {
-            'mock_order_id': mock_order_id,
-            'pay_url': pay_url,
-            'amount': str(amount),
-            'payment_method': payment_method,
-            'status': 'pending',
+            "mock_order_id": mock_order_id,
+            "pay_url": pay_url,
+            "amount": str(amount),
+            "payment_method": payment_method,
+            "status": "pending",
         }
 
     def query_status(self, mock_order_id: str) -> str:
@@ -37,12 +40,12 @@ class MockPaymentService:
         # 已支付的订单（模拟持久化，实际通过数据库记录）
         rand = random.random()
         if rand < self.SUCCESS_RATE:
-            return 'success'
+            return "success"
         elif rand < 0.95:
-            return 'pending'
-        return 'failed'
+            return "pending"
+        return "failed"
 
-    def refund(self, mock_order_id: str, amount: Decimal, reason: str = '') -> dict:
+    def refund(self, mock_order_id: str, amount: Decimal, reason: str = "") -> dict:
         """
         模拟退款
         :param mock_order_id: 模拟订单ID
@@ -52,11 +55,11 @@ class MockPaymentService:
         """
         refund_id = f"REFUND_{uuid.uuid4().hex[:8].upper()}"
         return {
-            'refund_id': refund_id,
-            'mock_order_id': mock_order_id,
-            'amount': str(amount),
-            'reason': reason,
-            'status': 'success',
+            "refund_id": refund_id,
+            "mock_order_id": mock_order_id,
+            "amount": str(amount),
+            "reason": reason,
+            "status": "success",
         }
 
 

@@ -10,7 +10,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'name', 'parent', 'sort_order', 'children']
+        fields = ["id", "name", "parent", "sort_order", "children"]
 
     def get_children(self, obj):
         if obj.parent is None:
@@ -23,26 +23,45 @@ class CategorySimpleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'name', 'parent', 'sort_order']
+        fields = ["id", "name", "parent", "sort_order"]
 
 
 class BookSerializer(serializers.ModelSerializer):
     """图书完整序列化器（商家/管理员用）"""
 
-    merchant_name = serializers.CharField(source='merchant.store_name', read_only=True)
-    category_name = serializers.CharField(source='category.name', read_only=True, default='')
+    merchant_name = serializers.CharField(source="merchant.store_name", read_only=True)
+    category_name = serializers.CharField(
+        source="category.name", read_only=True, default=""
+    )
     is_low_stock = serializers.BooleanField(read_only=True)
     cover_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Book
         fields = [
-            'id', 'merchant', 'merchant_name', 'category', 'category_name',
-            'title', 'author', 'isbn', 'publisher', 'publish_date',
-            'description', 'cover', 'cover_url', 'price', 'stock', 'warning_stock',
-            'sales', 'is_on_sale', 'is_low_stock', 'created_at', 'updated_at',
+            "id",
+            "merchant",
+            "merchant_name",
+            "category",
+            "category_name",
+            "title",
+            "author",
+            "isbn",
+            "publisher",
+            "publish_date",
+            "description",
+            "cover",
+            "cover_url",
+            "price",
+            "stock",
+            "warning_stock",
+            "sales",
+            "is_on_sale",
+            "is_low_stock",
+            "created_at",
+            "updated_at",
         ]
-        read_only_fields = ['id', 'merchant', 'sales', 'created_at', 'updated_at']
+        read_only_fields = ["id", "merchant", "sales", "created_at", "updated_at"]
 
     def get_cover_url(self, obj):
         """生成图片URL（相对路径）"""
@@ -59,8 +78,18 @@ class BookCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = [
-            'category', 'title', 'author', 'isbn', 'publisher', 'publish_date',
-            'description', 'cover', 'price', 'stock', 'warning_stock', 'is_on_sale',
+            "category",
+            "title",
+            "author",
+            "isbn",
+            "publisher",
+            "publish_date",
+            "description",
+            "cover",
+            "price",
+            "stock",
+            "warning_stock",
+            "is_on_sale",
         ]
 
     def validate_price(self, value):
@@ -77,15 +106,28 @@ class BookCreateSerializer(serializers.ModelSerializer):
 class BookListSerializer(serializers.ModelSerializer):
     """图书列表序列化器（用户浏览用）"""
 
-    merchant_name = serializers.CharField(source='merchant.store_name', read_only=True)
-    category_name = serializers.CharField(source='category.name', read_only=True, default='')
+    merchant_name = serializers.CharField(source="merchant.store_name", read_only=True)
+    category_name = serializers.CharField(
+        source="category.name", read_only=True, default=""
+    )
     cover_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Book
         fields = [
-            'id', 'merchant', 'merchant_name', 'category', 'category_name',
-            'title', 'author', 'cover', 'cover_url', 'price', 'stock', 'sales', 'is_on_sale',
+            "id",
+            "merchant",
+            "merchant_name",
+            "category",
+            "category_name",
+            "title",
+            "author",
+            "cover",
+            "cover_url",
+            "price",
+            "stock",
+            "sales",
+            "is_on_sale",
         ]
 
     def get_cover_url(self, obj):
@@ -100,20 +142,38 @@ class BookListSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     """评论序列化器"""
 
-    username = serializers.CharField(source='user.username', read_only=True)
-    book_title = serializers.CharField(source='book.title', read_only=True)
-    rating_display = serializers.CharField(source='get_rating_display', read_only=True)
+    username = serializers.CharField(source="user.username", read_only=True)
+    book_title = serializers.CharField(source="book.title", read_only=True)
+    rating_display = serializers.CharField(source="get_rating_display", read_only=True)
 
     class Meta:
         model = Review
         fields = [
-            'id', 'user', 'username', 'book', 'book_title', 'order',
-            'rating', 'rating_display', 'content',
-            'is_sensitive', 'is_approved',
-            'merchant_reply', 'replied_at',
-            'created_at', 'updated_at',
+            "id",
+            "user",
+            "username",
+            "book",
+            "book_title",
+            "order",
+            "rating",
+            "rating_display",
+            "content",
+            "is_sensitive",
+            "is_approved",
+            "merchant_reply",
+            "replied_at",
+            "created_at",
+            "updated_at",
         ]
-        read_only_fields = ['id', 'user', 'is_sensitive', 'is_approved', 'replied_at', 'created_at', 'updated_at']
+        read_only_fields = [
+            "id",
+            "user",
+            "is_sensitive",
+            "is_approved",
+            "replied_at",
+            "created_at",
+            "updated_at",
+        ]
 
 
 class ReviewCreateSerializer(serializers.Serializer):

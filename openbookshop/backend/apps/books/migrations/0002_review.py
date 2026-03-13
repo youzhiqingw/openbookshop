@@ -9,32 +9,99 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('orders', '0001_initial'),
-        ('books', '0001_initial'),
+        ("orders", "0001_initial"),
+        ("books", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Review',
+            name="Review",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('rating', models.IntegerField(choices=[(1, '1星'), (2, '2星'), (3, '3星'), (4, '4星'), (5, '5星')], default=5, verbose_name='评分')),
-                ('content', models.TextField(verbose_name='评论内容')),
-                ('is_sensitive', models.BooleanField(default=False, verbose_name='包含敏感词')),
-                ('is_approved', models.BooleanField(default=False, verbose_name='已审核通过')),
-                ('merchant_reply', models.TextField(blank=True, verbose_name='商家回复')),
-                ('replied_at', models.DateTimeField(blank=True, null=True, verbose_name='回复时间')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='更新时间')),
-                ('book', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reviews', to='books.book', verbose_name='图书')),
-                ('order', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='reviews', to='orders.order', verbose_name='关联订单')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reviews', to=settings.AUTH_USER_MODEL, verbose_name='用户')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "rating",
+                    models.IntegerField(
+                        choices=[
+                            (1, "1星"),
+                            (2, "2星"),
+                            (3, "3星"),
+                            (4, "4星"),
+                            (5, "5星"),
+                        ],
+                        default=5,
+                        verbose_name="评分",
+                    ),
+                ),
+                ("content", models.TextField(verbose_name="评论内容")),
+                (
+                    "is_sensitive",
+                    models.BooleanField(default=False, verbose_name="包含敏感词"),
+                ),
+                (
+                    "is_approved",
+                    models.BooleanField(default=False, verbose_name="已审核通过"),
+                ),
+                (
+                    "merchant_reply",
+                    models.TextField(blank=True, verbose_name="商家回复"),
+                ),
+                (
+                    "replied_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="回复时间"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
+                ),
+                (
+                    "book",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reviews",
+                        to="books.book",
+                        verbose_name="图书",
+                    ),
+                ),
+                (
+                    "order",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="reviews",
+                        to="orders.order",
+                        verbose_name="关联订单",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reviews",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="用户",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '图书评论',
-                'verbose_name_plural': '图书评论',
-                'ordering': ['-created_at'],
-                'unique_together': {('user', 'book', 'order')},
+                "verbose_name": "图书评论",
+                "verbose_name_plural": "图书评论",
+                "ordering": ["-created_at"],
+                "unique_together": {("user", "book", "order")},
             },
         ),
     ]

@@ -8,28 +8,84 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('merchants', '0002_initial'),
+        ("merchants", "0002_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('orders', '0001_initial'),
+        ("orders", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FinanceRecord',
+            name="FinanceRecord",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.CharField(choices=[('income', '订单收入'), ('refund', '退款支出')], max_length=20, verbose_name='类型')),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=12, verbose_name='金额')),
-                ('description', models.CharField(blank=True, max_length=200, verbose_name='描述')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
-                ('merchant', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='finance_records', to='merchants.merchant', verbose_name='商家')),
-                ('order', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='finance_records', to='orders.order', verbose_name='关联订单')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='finance_records', to=settings.AUTH_USER_MODEL, verbose_name='用户')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[("income", "订单收入"), ("refund", "退款支出")],
+                        max_length=20,
+                        verbose_name="类型",
+                    ),
+                ),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=12, verbose_name="金额"
+                    ),
+                ),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=200, verbose_name="描述"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
+                ),
+                (
+                    "merchant",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="finance_records",
+                        to="merchants.merchant",
+                        verbose_name="商家",
+                    ),
+                ),
+                (
+                    "order",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="finance_records",
+                        to="orders.order",
+                        verbose_name="关联订单",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="finance_records",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="用户",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '财务流水',
-                'verbose_name_plural': '财务流水',
-                'ordering': ['-created_at'],
+                "verbose_name": "财务流水",
+                "verbose_name_plural": "财务流水",
+                "ordering": ["-created_at"],
             },
         ),
     ]

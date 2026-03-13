@@ -8,7 +8,7 @@ class IsAdmin(BasePermission):
         return bool(
             request.user
             and request.user.is_authenticated
-            and (request.user.role == 'admin' or request.user.is_staff)
+            and (request.user.role == "admin" or request.user.is_staff)
         )
 
 
@@ -19,8 +19,8 @@ class IsMerchant(BasePermission):
         return bool(
             request.user
             and request.user.is_authenticated
-            and request.user.role == 'merchant'
-            and hasattr(request.user, 'merchant')
+            and request.user.role == "merchant"
+            and hasattr(request.user, "merchant")
         )
 
 
@@ -31,7 +31,7 @@ class IsCustomer(BasePermission):
         return bool(
             request.user
             and request.user.is_authenticated
-            and request.user.role == 'customer'
+            and request.user.role == "customer"
         )
 
 
@@ -41,9 +41,9 @@ class IsMerchantApproved(BasePermission):
     def has_permission(self, request, view):
         if not (request.user and request.user.is_authenticated):
             return False
-        if request.user.role != 'merchant':
+        if request.user.role != "merchant":
             return False
         return (
-            hasattr(request.user, 'merchant')
-            and request.user.merchant.status == 'approved'
+            hasattr(request.user, "merchant")
+            and request.user.merchant.status == "approved"
         )
