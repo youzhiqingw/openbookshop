@@ -1,0 +1,11 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E203, W503
+per-file-ignores =
+    # Django setup imports must come after os.environ configuration
+    config/settings.py: E402
+    init_data_persistent.py: E402
+    update_book_covers.py: E402
+    verify_image_fix.py: E402, F401, F541
+    # Migration files are auto-generated
+    */migrations/*.py: E501

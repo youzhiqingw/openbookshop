@@ -1,11 +1,22 @@
 """DFA（确定有限状态自动机）敏感词过滤器"""
 
-
 # 默认敏感词列表（实际项目可从数据库或文件加载）
 DEFAULT_SENSITIVE_WORDS = [
-    '垃圾', '骗子', '诈骗', '刷单', '黄赌毒',
-    '违禁', '盗版', '假货', '欺诈', '侮辱',
-    '暴力', '色情', '赌博', '毒品', '违法',
+    "垃圾",
+    "骗子",
+    "诈骗",
+    "刷单",
+    "黄赌毒",
+    "违禁",
+    "盗版",
+    "假货",
+    "欺诈",
+    "侮辱",
+    "暴力",
+    "色情",
+    "赌博",
+    "毒品",
+    "违法",
 ]
 
 
@@ -14,7 +25,7 @@ class DFAFilter:
 
     def __init__(self, words=None):
         self._trie = {}
-        self._end_key = '\x00'
+        self._end_key = "\x00"
         words = words or DEFAULT_SENSITIVE_WORDS
         for word in words:
             self.add_word(word)
@@ -38,7 +49,7 @@ class DFAFilter:
                 j += 1
         return False
 
-    def filter(self, text: str, replace_char: str = '*') -> str:
+    def filter(self, text: str, replace_char: str = "*") -> str:
         """将文本中的敏感词替换为指定字符"""
         result = list(text)
         i = 0
@@ -57,7 +68,7 @@ class DFAFilter:
                 i = matched_end + 1
             else:
                 i += 1
-        return ''.join(result)
+        return "".join(result)
 
 
 # 全局单例

@@ -2,6 +2,6 @@ from django.apps import AppConfig
 
 
 class MerchantsConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.merchants'
-    verbose_name = '商家管理'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.merchants"
+    verbose_name = "商家管理"
