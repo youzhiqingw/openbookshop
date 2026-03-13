@@ -45,9 +45,9 @@
             <h3 class="chart-title">收入趋势</h3>
             <div class="chart-controls">
               <el-radio-group v-model="revenueChartType" size="small" @change="updateRevenueChart">
-                <el-radio-button label="week">周</el-radio-button>
-                <el-radio-button label="month">月</el-radio-button>
-                <el-radio-button label="year">年</el-radio-button>
+                <el-radio-button value="week">周</el-radio-button>
+                <el-radio-button value="month">月</el-radio-button>
+                <el-radio-button value="year">年</el-radio-button>
               </el-radio-group>
             </div>
           </div>

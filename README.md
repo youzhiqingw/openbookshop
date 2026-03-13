@@ -2,11 +2,7 @@
 
 ```markdown
 # README.md
-📋 测试账户
-用户名	密码	角色	用途
-admin	admin123456	admin	管理员(可访问Django后台)
-merchant_test	merchant123456	merchant	商家
-customer_test	customer123456	customer	普通用
+
 # 📚 在线图书销售系统
 
 基于 Django + Vue3 的完整电商平台毕业设计，支持管理端、用户端、商家端三端分离。

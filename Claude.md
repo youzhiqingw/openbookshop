@@ -76,8 +76,7 @@ queryset = Book.objects.filter(merchant=request.user.merchant)
 
 - 超级管理员: 可查看全平台预警，设置全局阈值
 - 商家: 仅查看/设置自己商品的预警值
-- 触发条件: `current_stock <= warning_stock`
-  #### 常用命令
+- 触发条件: `current_stock <= warning_stock`#### 常用命令
 
 ```
 # 后端
@@ -91,6 +90,16 @@ cd frontend && npm run build
 ```
 
 ### 注意事项
+
+
+# ❌ 永远不要这么做（会删除所有数据库数据）
+
+docker-compose down -v
+
+# ✅ 正确做法（只停止容器，保留数据）
+
+docker-compose down
+docker-compose up -d
 
 - 所有资金操作记录财务流水(FinanceRecord)
 - 所有操作记录日志(OperationLog)

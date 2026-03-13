@@ -7,20 +7,25 @@ export const useCartStore = defineStore('cart', () => {
   const items = ref([])
   const loading = ref(false)
 
-  const totalCount = computed(() =>
-    items.value.reduce((sum, item) => sum + item.quantity, 0)
-  )
+  const totalCount = computed(() => {
+    if (!Array.isArray(items.value)) return 0
+    return items.value.reduce((sum, item) => sum + (item.quantity || 0), 0)
+  })
 
-  const totalAmount = computed(() =>
-    items.value.reduce((sum, item) => sum + Number(item.subtotal), 0).toFixed(2)
-  )
+  const totalAmount = computed(() => {
+    if (!Array.isArray(items.value)) return '0.00'
+    return items.value.reduce((sum, item) => sum + Number(item.subtotal || 0), 0).toFixed(2)
+  })
 
   async function fetchCart() {
     loading.value = true
     try {
       const res = await orderApi.getCart()
-      items.value = res.results || res || []
-    } catch {
+      // 确保始终设置为数组
+      const cartData = res.results || res.data?.results || []
+      items.value = Array.isArray(cartData) ? cartData : []
+    } catch (err) {
+      console.error('获取购物车失败:', err)
       items.value = []
     } finally {
       loading.value = false

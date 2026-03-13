@@ -421,7 +421,7 @@ export default configure((ctx) => ({
         },
         {
           // Cache images
-          urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+          urlPattern: /\.(?:png|jpg|png|svg|gif|webp)$/,
           handler: 'CacheFirst',
           options: {
             cacheName: 'image-cache',

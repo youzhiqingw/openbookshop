@@ -63,7 +63,7 @@
           <div class="sidebar-role">超级管理员</div>
         </div>
       </div>
-    </el-aside>
+    </aside>
 
     <!-- Main content -->
     <el-container class="main-container">
@@ -112,7 +112,7 @@
         <RouterView />
       </el-main>
     </el-container>
-  </el-container>
+  </div>
 </template>
 
 <script setup>
@@ -154,12 +154,15 @@ async function handleCommand(command) {
 
 <style lang="scss" scoped>
 .admin-layout {
+  display: flex;
+  flex-direction: row;
   min-height: 100vh;
   background: #f0f2f5;
 }
 
 // ── Sidebar ────────────────────────────────────────────────
 .sidebar {
+  width: 250px;
   background: linear-gradient(180deg, #1a3a2a 0%, #2C5F2D 100%);
   display: flex;
   flex-direction: column;
@@ -168,6 +171,7 @@ async function handleCommand(command) {
   position: relative;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
   z-index: 100;
+  flex-shrink: 0;
 
   .sidebar-logo {
     display: flex;
@@ -243,6 +247,11 @@ async function handleCommand(command) {
       font-size: 11px;
       color: #a8c4aa;
     }
+  }
+
+  // ── Collapsed State ────────────────────────────────────
+  &.collapsed {
+    width: 64px;
   }
 }
 

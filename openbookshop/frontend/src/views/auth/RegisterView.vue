@@ -91,11 +91,44 @@ const rules = {
   ],
 }
 
+function parseRegisterError(error) {
+  const payload = error?.response?.data
+
+  // Prefer backend unified message first.
+  if (payload?.message && typeof payload.message === 'string') {
+    return payload.message
+  }
+
+  // Fallback for field-level response payload.
+  if (payload && typeof payload === 'object') {
+    const parts = []
+    Object.entries(payload).forEach(([field, val]) => {
+      if (Array.isArray(val) && val.length > 0) {
+        parts.push(`${field}: ${val.join('；')}`)
+      } else if (typeof val === 'string') {
+        parts.push(`${field}: ${val}`)
+      }
+    })
+    if (parts.length > 0) {
+      return parts.join('；')
+    }
+  }
+
+  return '注册失败，请检查输入信息'
+}
+
 async function handleRegister() {
   await formRef.value.validate()
   loading.value = true
   try {
-    const res = await authStore.register(form)
+    const payload = {
+      username: form.username?.trim(),
+      email: form.email?.trim() || '',
+      phone: form.phone?.trim() || '',
+      password: form.password,
+      password2: form.password2,
+    }
+    const res = await authStore.register(payload)
     if (res.code === 201) {
       ElMessage.success('注册成功')
       router.push('/profile')
@@ -103,7 +136,7 @@ async function handleRegister() {
       ElMessage.error(res.message || '注册失败')
     }
   } catch (err) {
-    ElMessage.error(err.response?.data?.message || '注册失败，请重试')
+    ElMessage.error(parseRegisterError(err))
   } finally {
     loading.value = false
   }

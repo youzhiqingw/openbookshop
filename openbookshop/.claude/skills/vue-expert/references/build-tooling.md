@@ -361,7 +361,7 @@ export default defineConfig({
     viteImagemin({
       gifsicle: { optimizationLevel: 3 },
       optipng: { optimizationLevel: 7 },
-      mozjpeg: { quality: 80 },
+      mozpng: { quality: 80 },
       svgo: {
         plugins: [
           { name: 'removeViewBox', active: false },

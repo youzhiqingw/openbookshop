@@ -53,7 +53,7 @@
       <div v-loading="loading" class="book-grid">
         <div v-for="book in newBooks" :key="book.id" class="book-card" @click="router.push(`/books/${book.id}`)">
           <div class="book-cover">
-            <img v-if="book.cover" :src="book.cover" :alt="book.title" />
+            <img v-if="book.cover_url || book.cover" :src="book.cover_url || book.cover" :alt="book.title" @error="(e) => (e.target.style.display = 'none')" />
             <div v-else class="cover-placeholder">📚</div>
             <span class="new-badge">新书</span>
           </div>
@@ -79,7 +79,7 @@
       <div v-loading="loadingHot" class="book-grid">
         <div v-for="book in hotBooks" :key="book.id" class="book-card" @click="router.push(`/books/${book.id}`)">
           <div class="book-cover">
-            <img v-if="book.cover" :src="book.cover" :alt="book.title" />
+            <img v-if="book.cover_url || book.cover" :src="book.cover_url || book.cover" :alt="book.title" @error="(e) => (e.target.style.display = 'none')" />
             <div v-else class="cover-placeholder">📚</div>
           </div>
           <div class="book-info">

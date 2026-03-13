@@ -29,7 +29,7 @@
         <el-table-column label="封面" width="72" align="center">
           <template #default="{ row }">
             <div class="cover-cell">
-              <img v-if="row.cover" :src="row.cover" class="book-cover" />
+              <img v-if="row.cover_url || row.cover" :src="row.cover_url || row.cover" class="book-cover" @error="(e) => (e.target.style.display = 'none')" />
               <div v-else class="cover-placeholder">📖</div>
             </div>
           </template>
@@ -117,7 +117,7 @@
           <el-col :span="8">
             <el-form-item label="封面图" label-width="60px">
               <div class="cover-preview-wrap">
-                <img v-if="form.cover" :src="form.cover" class="cover-preview" />
+                <img v-if="form.cover" :src="form.cover" class="cover-preview" @error="(e) => (e.target.style.display = 'none')" />
                 <div v-else class="cover-placeholder-lg">📖</div>
               </div>
             </el-form-item>

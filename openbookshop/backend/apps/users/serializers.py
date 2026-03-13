@@ -26,6 +26,11 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("两次密码不一致")
         return value
 
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("用户名已存在")
+        return value
+
     def validate_role(self, value):
         # 注册时允许任何有效角色，但后台管理会进一步控制
         if value not in ('customer', 'merchant', 'admin'):

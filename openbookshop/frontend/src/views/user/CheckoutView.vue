@@ -32,7 +32,7 @@
         <div class="order-items">
           <div v-for="item in checkoutItems" :key="item.id" class="order-item">
             <div class="item-cover">
-              <img v-if="item.book_detail?.cover" :src="item.book_detail.cover" class="cover-img" />
+              <img v-if="item.book_detail?.cover_url || item.book_detail?.cover" :src="item.book_detail?.cover_url || item.book_detail?.cover" class="cover-img" @error="(e) => (e.target.style.display = 'none')" />
               <div v-else class="cover-placeholder">📚</div>
             </div>
             <div class="item-title">{{ item.book_detail?.title }}</div>

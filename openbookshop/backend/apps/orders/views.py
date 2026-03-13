@@ -186,7 +186,8 @@ class OrderCreateView(APIView):
             book = locked_books[item.book_id]
             cover_url = ''
             if book.cover:
-                cover_url = request.build_absolute_uri(book.cover.url)
+                # 使用相对路径，让前端/Nginx正确处理
+                cover_url = book.cover.url
             OrderItem.objects.create(
                 order=order,
                 book=book,

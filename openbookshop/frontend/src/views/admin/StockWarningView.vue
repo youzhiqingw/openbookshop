@@ -29,7 +29,7 @@
         <el-table-column prop="id" label="ID" width="60" />
         <el-table-column label="封面" width="70">
           <template #default="{ row }">
-            <img v-if="row.cover" :src="row.cover" style="width:45px;height:57px;object-fit:cover;border-radius:2px;" />
+            <img v-if="row.cover_url || row.cover" :src="row.cover_url || row.cover" style="width:45px;height:57px;object-fit:cover;border-radius:2px;" @error="(e) => (e.target.style.display = 'none')" />
             <span v-else>—</span>
           </template>
         </el-table-column>

@@ -18,9 +18,9 @@
           <div class="payment-method">
             <h3>选择支付方式</h3>
             <el-radio-group v-model="paymentMethod" class="method-group">
-              <el-radio-button label="wechat">微信支付</el-radio-button>
-              <el-radio-button label="alipay">支付宝</el-radio-button>
-              <el-radio-button label="mock">模拟支付</el-radio-button>
+              <el-radio-button value="wechat">微信支付</el-radio-button>
+              <el-radio-button value="alipay">支付宝</el-radio-button>
+              <el-radio-button value="mock">模拟支付</el-radio-button>
             </el-radio-group>
           </div>
 

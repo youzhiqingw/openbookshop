@@ -7,7 +7,7 @@
         <!-- Cover -->
         <el-col :span="8">
           <div class="cover-wrap">
-            <img v-if="book.cover" :src="book.cover" :alt="book.title" class="cover-img" />
+            <img v-if="book.cover_url || book.cover" :src="book.cover_url || book.cover" :alt="book.title" class="cover-img" @error="(e) => (e.target.style.display = 'none')" />
             <div v-else class="cover-placeholder">📚</div>
           </div>
         </el-col>

@@ -32,16 +32,25 @@ class BookSerializer(serializers.ModelSerializer):
     merchant_name = serializers.CharField(source='merchant.store_name', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True, default='')
     is_low_stock = serializers.BooleanField(read_only=True)
+    cover_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Book
         fields = [
             'id', 'merchant', 'merchant_name', 'category', 'category_name',
             'title', 'author', 'isbn', 'publisher', 'publish_date',
-            'description', 'cover', 'price', 'stock', 'warning_stock',
+            'description', 'cover', 'cover_url', 'price', 'stock', 'warning_stock',
             'sales', 'is_on_sale', 'is_low_stock', 'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'merchant', 'sales', 'created_at', 'updated_at']
+
+    def get_cover_url(self, obj):
+        """生成图片URL（相对路径）"""
+        if obj.cover:
+            # 使用相对路径，让前端/Nginx正确处理
+            # 相比 request.build_absolute_uri() 更稳定，适用于反向代理环境
+            return obj.cover.url
+        return None
 
 
 class BookCreateSerializer(serializers.ModelSerializer):
@@ -70,13 +79,22 @@ class BookListSerializer(serializers.ModelSerializer):
 
     merchant_name = serializers.CharField(source='merchant.store_name', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True, default='')
+    cover_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Book
         fields = [
             'id', 'merchant', 'merchant_name', 'category', 'category_name',
-            'title', 'author', 'cover', 'price', 'stock', 'sales', 'is_on_sale',
+            'title', 'author', 'cover', 'cover_url', 'price', 'stock', 'sales', 'is_on_sale',
         ]
+
+    def get_cover_url(self, obj):
+        """生成图片URL（相对路径）"""
+        if obj.cover:
+            # 使用相对路径，让前端/Nginx正确处理
+            # 相比 request.build_absolute_uri() 更稳定，适用于反向代理环境
+            return obj.cover.url
+        return None
 
 
 class ReviewSerializer(serializers.ModelSerializer):

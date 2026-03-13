@@ -6,7 +6,9 @@ WORKDIR /app
 
 # 先复制 package.json 利用 Docker 层缓存
 COPY package.json package-lock.json* ./
-RUN npm install
+
+# 使用 npm install 并添加重试机制，同时设置合理的超时和资源限制
+RUN npm install --legacy-peer-deps --foreground --fetch-timeout=60000 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || npm install --legacy-peer-deps
 
 # 复制源码并构建
 COPY . .

@@ -83,8 +83,8 @@
           <el-card class="book-card" shadow="hover" @click="goDetail(book.id)">
             <div class="book-cover">
               <img
-                v-if="book.cover"
-                :src="book.cover"
+                v-if="book.cover_url || book.cover"
+                :src="book.cover_url || book.cover"
                 :alt="book.title"
                 class="cover-img"
               />

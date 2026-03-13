@@ -28,7 +28,12 @@
           <div v-for="item in cartStore.items" :key="item.id" class="cart-item">
             <el-checkbox v-model="selectedIds" :label="item.id" class="item-check" />
             <div class="item-cover" @click="router.push(`/books/${item.book}`)">
-              <img v-if="item.book_detail?.cover" :src="item.book_detail.cover" class="cover-img" />
+              <img
+                v-if="item.book_detail?.cover_url || item.book_detail?.cover"
+                :src="item.book_detail?.cover_url || item.book_detail?.cover"
+                class="cover-img"
+                @error="(e) => (e.target.style.display = 'none')"
+              />
               <div v-else class="cover-placeholder">📚</div>
             </div>
             <div class="item-info" @click="router.push(`/books/${item.book}`)">
@@ -85,9 +90,10 @@ const selectAll = computed({
 })
 
 const selectedTotal = computed(() => {
+  if (!Array.isArray(cartStore.items)) return '0.00'
   const total = cartStore.items
     .filter((i) => selectedIds.value.includes(i.id))
-    .reduce((sum, i) => sum + Number(i.subtotal), 0)
+    .reduce((sum, i) => sum + Number(i.subtotal || 0), 0)
   return total.toFixed(2)
 })
 

@@ -12,6 +12,16 @@ fi
 echo "Running database migrations..."
 python manage.py migrate --noinput
 
+# 初始化持久化数据（用户、商家、书籍等）
+echo "Initializing persistent data..."
+if [ -f /app/init_data_persistent.py ]; then
+    python /app/init_data_persistent.py || {
+        echo "⚠️  Warning: persistent data initialization failed, but continuing..."
+    }
+else
+    echo "⚠️  Warning: init_data_persistent.py not found, skipping data initialization"
+fi
+
 # 启动 Gunicorn
 echo "Starting Gunicorn..."
 exec gunicorn --bind 0.0.0.0:8000 --workers 3 config.wsgi:application
