@@ -1,61 +1,73 @@
 <template>
   <div class="merchant-books-page">
-    <el-card>
+    <el-card shadow="never" class="main-card">
       <template #header>
         <div class="card-header">
-          <span>图书管理</span>
+          <span class="card-title">图书管理</span>
           <div class="header-actions">
-            <el-button type="warning" text @click="viewLowStock">库存预警</el-button>
-            <el-button type="primary" @click="openDialog()">+ 新增图书</el-button>
+            <el-button type="warning" plain :icon="Warning" size="small" @click="viewLowStock">库存预警</el-button>
+            <el-button type="primary" :icon="Plus" @click="openDialog()">新增图书</el-button>
           </div>
         </div>
       </template>
 
-      <!-- Search -->
+      <!-- Search bar -->
       <div class="search-bar">
         <el-input
           v-model="searchQuery"
           placeholder="搜索书名、作者、ISBN"
           clearable
-          style="width: 300px"
-          @keyup.enter="fetchBooks"
-          @clear="fetchBooks"
+          style="width: 320px"
+          :prefix-icon="Search"
+          @keyup.enter="() => { currentPage = 1; fetchBooks() }"
+          @clear="() => { currentPage = 1; fetchBooks() }"
         />
-        <el-button @click="fetchBooks">搜索</el-button>
+        <el-button type="primary" plain @click="() => { currentPage = 1; fetchBooks() }">搜索</el-button>
       </div>
 
-      <el-table v-loading="loading" :data="books" stripe>
-        <el-table-column label="封面" width="80">
+      <el-table v-loading="loading" :data="books" stripe row-key="id">
+        <el-table-column label="封面" width="72" align="center">
           <template #default="{ row }">
-            <img v-if="row.cover" :src="row.cover" style="width:50px;height:63px;object-fit:cover;border-radius:2px;" />
-            <span v-else>—</span>
+            <div class="cover-cell">
+              <img v-if="row.cover" :src="row.cover" class="book-cover" />
+              <div v-else class="cover-placeholder">📖</div>
+            </div>
           </template>
         </el-table-column>
-        <el-table-column prop="title" label="书名" min-width="150" />
-        <el-table-column prop="author" label="作者" width="120" />
-        <el-table-column prop="price" label="价格" width="90">
-          <template #default="{ row }">¥{{ row.price }}</template>
-        </el-table-column>
-        <el-table-column prop="stock" label="库存" width="80">
+        <el-table-column label="书名 / 作者" min-width="180">
           <template #default="{ row }">
-            <el-text :type="row.is_low_stock ? 'danger' : ''">{{ row.stock }}</el-text>
+            <div class="book-title-cell">
+              <div class="book-title">{{ row.title }}</div>
+              <div class="book-author">{{ row.author }}</div>
+            </div>
           </template>
         </el-table-column>
-        <el-table-column prop="sales" label="销量" width="80" />
-        <el-table-column prop="is_on_sale" label="状态" width="80">
+        <el-table-column prop="price" label="价格" width="90" align="right">
           <template #default="{ row }">
-            <el-tag :type="row.is_on_sale ? 'success' : 'info'">
+            <span class="price">¥{{ row.price }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="stock" label="库存" width="90" align="center">
+          <template #default="{ row }">
+            <span :class="row.is_low_stock ? 'stock-low' : 'stock-ok'">{{ row.stock }}</span>
+            <el-icon v-if="row.is_low_stock" color="#ff4d4f" style="margin-left:4px"><Warning /></el-icon>
+          </template>
+        </el-table-column>
+        <el-table-column prop="sales" label="累计销量" width="90" align="center" />
+        <el-table-column prop="is_on_sale" label="状态" width="80" align="center">
+          <template #default="{ row }">
+            <el-tag :type="row.is_on_sale ? 'success' : 'info'" effect="light" round size="small">
               {{ row.is_on_sale ? '上架' : '下架' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="160" fixed="right">
+        <el-table-column label="操作" width="180" fixed="right" align="center">
           <template #default="{ row }">
-            <el-button text type="primary" @click="openDialog(row)">编辑</el-button>
-            <el-button text :type="row.is_on_sale ? 'warning' : 'success'" @click="toggleSale(row)">
+            <el-button size="small" type="primary" plain @click="openDialog(row)">编辑</el-button>
+            <el-button size="small" :type="row.is_on_sale ? 'warning' : 'success'" plain @click="toggleSale(row)">
               {{ row.is_on_sale ? '下架' : '上架' }}
             </el-button>
-            <el-button text type="danger" @click="deleteBook(row)">删除</el-button>
+            <el-button size="small" type="danger" plain @click="deleteBook(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -75,64 +87,96 @@
     <el-dialog
       v-model="dialogVisible"
       :title="editing ? '编辑图书' : '新增图书'"
-      width="600px"
+      width="620px"
+      align-center
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="90px">
-        <el-form-item label="书名" prop="title">
-          <el-input v-model="form.title" />
-        </el-form-item>
-        <el-form-item label="作者" prop="author">
-          <el-input v-model="form.author" />
-        </el-form-item>
-        <el-form-item label="分类">
-          <el-select v-model="form.category" placeholder="选择分类" clearable style="width:100%">
-            <el-option v-for="cat in categories" :key="cat.id" :label="cat.name" :value="cat.id" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="ISBN">
-          <el-input v-model="form.isbn" />
-        </el-form-item>
-        <el-form-item label="出版社">
-          <el-input v-model="form.publisher" />
-        </el-form-item>
-        <el-form-item label="出版日期">
-          <el-date-picker v-model="form.publish_date" type="date" value-format="YYYY-MM-DD" style="width:100%" />
-        </el-form-item>
+        <el-row :gutter="16">
+          <el-col :span="16">
+            <el-form-item label="书名" prop="title">
+              <el-input v-model="form.title" placeholder="请输入书名" />
+            </el-form-item>
+            <el-form-item label="作者" prop="author">
+              <el-input v-model="form.author" placeholder="请输入作者" />
+            </el-form-item>
+            <el-form-item label="分类">
+              <el-select v-model="form.category" placeholder="选择分类" clearable style="width:100%">
+                <el-option v-for="cat in categories" :key="cat.id" :label="cat.name" :value="cat.id" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="ISBN">
+              <el-input v-model="form.isbn" placeholder="978-..." />
+            </el-form-item>
+            <el-form-item label="出版社">
+              <el-input v-model="form.publisher" />
+            </el-form-item>
+            <el-form-item label="出版日期">
+              <el-date-picker v-model="form.publish_date" type="date" value-format="YYYY-MM-DD" style="width:100%" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="封面图" label-width="60px">
+              <div class="cover-preview-wrap">
+                <img v-if="form.cover" :src="form.cover" class="cover-preview" />
+                <div v-else class="cover-placeholder-lg">📖</div>
+              </div>
+            </el-form-item>
+            <el-form-item label="封面URL" label-width="60px">
+              <el-input v-model="form.cover" type="textarea" :rows="3" placeholder="封面图片URL" size="small" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-divider />
+
         <el-row :gutter="12">
-          <el-col :span="12">
+          <el-col :span="8">
             <el-form-item label="价格" prop="price">
               <el-input-number v-model="form.price" :precision="2" :min="0.01" style="width:100%" />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="8">
             <el-form-item label="库存" prop="stock">
               <el-input-number v-model="form.stock" :min="0" style="width:100%" />
             </el-form-item>
           </el-col>
+          <el-col :span="8">
+            <el-form-item label="预警库存">
+              <el-input-number v-model="form.warning_stock" :min="0" style="width:100%" />
+            </el-form-item>
+          </el-col>
         </el-row>
-        <el-form-item label="预警库存">
-          <el-input-number v-model="form.warning_stock" :min="0" style="width:100%" />
-        </el-form-item>
+
         <el-form-item label="简介">
-          <el-input v-model="form.description" type="textarea" :rows="3" />
+          <el-input v-model="form.description" type="textarea" :rows="3" placeholder="书籍简介（可选）" />
         </el-form-item>
-        <el-form-item label="是否上架">
-          <el-switch v-model="form.is_on_sale" />
+        <el-form-item label="上架销售">
+          <el-switch
+            v-model="form.is_on_sale"
+            active-text="上架中"
+            inactive-text="已下架"
+          />
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitting" @click="submitBook">保存</el-button>
+        <el-button type="primary" :loading="submitting" @click="submitBook">
+          {{ editing ? '保存修改' : '创建图书' }}
+        </el-button>
       </template>
     </el-dialog>
 
     <!-- Low Stock Dialog -->
-    <el-dialog v-model="lowStockVisible" title="库存预警商品" width="600px">
-      <el-empty v-if="!lowStockBooks.length" description="暂无库存预警商品" />
-      <el-table v-else :data="lowStockBooks" size="small">
-        <el-table-column prop="title" label="书名" />
-        <el-table-column prop="stock" label="当前库存" width="100" />
-        <el-table-column prop="warning_stock" label="预警库存" width="100" />
+    <el-dialog v-model="lowStockVisible" title="⚠️ 库存预警商品" width="560px" align-center>
+      <el-empty v-if="!lowStockBooks.length" description="暂无库存预警商品，库存充足 ✅" />
+      <el-table v-else :data="lowStockBooks" size="small" stripe>
+        <el-table-column prop="title" label="书名" min-width="150" show-overflow-tooltip />
+        <el-table-column prop="stock" label="当前库存" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag type="danger" size="small">{{ row.stock }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="warning_stock" label="预警阈值" width="100" align="center" />
       </el-table>
     </el-dialog>
   </div>
@@ -141,6 +185,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus, Warning, Search } from '@element-plus/icons-vue'
 import { merchantApi, bookApi } from '@/api'
 
 const books = ref([])
@@ -160,7 +205,7 @@ const formRef = ref()
 const form = reactive({
   title: '', author: '', category: null, isbn: '', publisher: '',
   publish_date: null, price: 0, stock: 0, warning_stock: 10,
-  description: '', is_on_sale: true,
+  description: '', is_on_sale: true, cover: '',
 })
 
 const rules = {
@@ -204,13 +249,13 @@ function openDialog(book = null) {
       title: book.title, author: book.author, category: book.category,
       isbn: book.isbn, publisher: book.publisher, publish_date: book.publish_date,
       price: parseFloat(book.price), stock: book.stock, warning_stock: book.warning_stock,
-      description: book.description, is_on_sale: book.is_on_sale,
+      description: book.description, is_on_sale: book.is_on_sale, cover: book.cover || '',
     })
   } else {
     Object.assign(form, {
       title: '', author: '', category: null, isbn: '', publisher: '',
       publish_date: null, price: 0, stock: 0, warning_stock: 10,
-      description: '', is_on_sale: true,
+      description: '', is_on_sale: true, cover: '',
     })
   }
   dialogVisible.value = true
@@ -277,19 +322,19 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.merchant-books-page {
-  padding: 20px;
+.merchant-books-page { }
+
+.main-card {
+  border-radius: 12px !important;
+  :deep(.el-card__header) { padding: 14px 20px; }
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.header-actions {
-  display: flex;
-  gap: 8px;
+  .card-title { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+  .header-actions { display: flex; gap: 8px; }
 }
 
 .search-bar {
@@ -298,9 +343,66 @@ onMounted(() => {
   margin-bottom: 16px;
 }
 
+// ── Table Cells ──────────────────────────────────────
+.cover-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .book-cover {
+    width: 42px;
+    height: 54px;
+    object-fit: cover;
+    border-radius: 3px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+
+  .cover-placeholder {
+    width: 42px;
+    height: 54px;
+    background: #f5f5f5;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+}
+
+.book-title-cell {
+  .book-title { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+  .book-author { font-size: 12px; color: #999; margin-top: 2px; }
+}
+
+.price { font-weight: 600; color: #c75b39; }
+.stock-low { color: #ff4d4f; font-weight: 600; }
+.stock-ok { color: #52c41a; font-weight: 600; }
+
 .pagination-wrap {
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
+}
+
+// ── Cover Preview ─────────────────────────────────────
+.cover-preview-wrap {
+  width: 100%;
+  aspect-ratio: 3/4;
+  background: #f5f5f5;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .cover-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cover-placeholder-lg {
+    font-size: 36px;
+  }
 }
 </style>

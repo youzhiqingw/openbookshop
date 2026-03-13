@@ -262,7 +262,19 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.admin-books-page { padding: 20px; }
+.admin-books-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+:deep(.el-card) {
+  border-radius: 12px !important;
+}
+
+:deep(.el-card__header) {
+  padding: 14px 20px;
+}
 
 .card-header {
   display: flex;

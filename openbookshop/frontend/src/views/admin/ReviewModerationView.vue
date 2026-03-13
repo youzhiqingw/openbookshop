@@ -1,6 +1,6 @@
 <template>
   <div class="review-moderation-view">
-    <el-card shadow="never">
+    <el-card shadow="never" class="main-card">
       <template #header>
         <div class="card-header">
           <span>评论审核</span>
@@ -134,7 +134,10 @@ onMounted(fetchList)
 </script>
 
 <style lang="scss" scoped>
-.review-moderation-view {}
+.main-card {
+  border-radius: 12px !important;
+  :deep(.el-card__header) { padding: 14px 20px; }
+}
 .card-header {
   display: flex;
   justify-content: space-between;

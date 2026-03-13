@@ -1,6 +1,6 @@
 <template>
   <div class="stock-warning-view">
-    <el-card shadow="never">
+    <el-card shadow="never" class="main-card">
       <template #header>
         <div class="card-header">
           <span>全平台库存预警</span>
@@ -99,6 +99,10 @@ onMounted(fetchData)
 </script>
 
 <style lang="scss" scoped>
+.main-card {
+  border-radius: 12px !important;
+  :deep(.el-card__header) { padding: 14px 20px; }
+}
 .card-header {
   display: flex;
   justify-content: space-between;
