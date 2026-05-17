@@ -1,0 +1,76 @@
+# Pull Request Template
+
+## Description
+
+Please include a summary of the changes and the related issue. Please also include relevant motivation and context. List any dependencies that are required for this change.
+
+Fixes # (issue)
+
+## Type of change
+
+Please delete options that are not relevant.
+
+- [ ] Bug fix (non-breaking change which fixes an issue)
+- [ ] New feature (non-breaking change which adds functionality)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] This change requires a documentation update
+- [ ] Code refactoring
+- [ ] Performance improvement
+- [ ] Test updates
+
+## How Has This Been Tested?
+
+Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration.
+
+- [ ] Unit tests
+- [ ] Integration tests
+- [ ] Manual testing
+- [ ] End-to-end tests
+
+**Test Configuration**:
+* Python version:
+* Node.js version:
+* Operating system:
+
+## Checklist:
+
+- [ ] My code follows the style guidelines of this project
+- [ ] I have performed a self-review of my own code
+- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] I have made corresponding changes to the documentation
+- [ ] My changes generate no new warnings
+- [ ] I have added tests that prove my fix is effective or that my feature works
+- [ ] New and existing unit tests pass locally with my changes
+- [ ] Any dependent changes have been merged and published in downstream modules
+
+## Screenshots (if appropriate):
+
+## Additional context
+
+Add any other context about the pull request here.
+
+## Backend Changes
+
+If this PR includes backend changes, please specify:
+
+- Models changed:
+- Views/APIs added/modified:
+- Database migrations:
+- Dependencies added/modified:
+
+## Frontend Changes
+
+If this PR includes frontend changes, please specify:
+
+- Components added/modified:
+- Routes added/modified:
+- State management changes:
+- Dependencies added/modified:
+
+## Breaking Changes
+
+Please list any breaking changes and migration instructions:
+
+## Security Considerations
+
+Please describe any security-related changes or considerations:

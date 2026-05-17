@@ -24,6 +24,7 @@ web/.vite/
 
 # === Docker ===
 /.env
+docker_env/mysql/data/
 
 # === OS ===
 .DS_Store
