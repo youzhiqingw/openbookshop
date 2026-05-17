@@ -1,88 +1,107 @@
-# openbookshop
+# OpenBookShop - 在线图书销售系统
 
-```markdown
-# README.md
+基于 [Django-Vue3-Admin](https://gitee.com/huge-dream/django-vue3-admin) 二次开发的三端在线图书销售平台。
 
-# 📚 在线图书销售系统
+## 项目简介
 
-基于 Django + Vue3 的完整电商平台毕业设计，支持管理端、用户端、商家端三端分离。
+OpenBookShop 是一个基于 Django + Vue3 的在线图书销售系统，采用前后端分离的 B/S 架构，支持管理端、商家端、消费者端三端功能。
 
-## ✨ 功能特性
+**角色优先级**: 管理员 > 商家 > 消费者
 
-### 🛡️ 管理端 (Admin)
-- **用户管理**: 查询、更新、禁用用户，风控分析
-- **图书管理**: 全平台图书CRUD、下架控制、ISBN管理
-- **分类管理**: 两级分类体系、标签、排序
-- **订单管理**: 状态流转、批量处理、订单导出
-- **评论管理**: 敏感词过滤、审核、删除
-- **库存监控**: 实时库存、预警设置、入库管理
-- **数据统计**: ECharts可视化、实时数据、多维度报表
-- **日志管理**: 操作日志、异常监控、访问分析
-- **财务管理**: 佣金结算、发票管理、报表导出
-- **客服管理**: 全站客服监控、满意度收集
-- **公告管理**: 富文本编辑、版本历史、推送配置
+### 三端功能
 
-### 👤 用户端 (Customer)
-- **登录注册**: 邮箱/用户名登录、JWT Token、密码找回
-- **首页**: 轮播图、热门推荐、分类导航、个性化推荐
-- **图书浏览**: 列表/详情、筛选、搜索、排序、标签
-- **购物车**: 增删改查、总价计算、批量选择
-- **订单系统**: 提交、支付(模拟)、取消、追踪、退款
-- **收货地址**: 最多5个地址、默认地址设置
-- **评价系统**: 评分、评论、敏感词审核、商家回复
-- **个人中心**: 信息修改、密码修改、订单历史、积分
-- **支付功能**: 微信/支付宝模拟支付、支付记录
-- **物流追踪**: 模拟物流信息、预计到货时间
-- **消息通知**: 站内信、订单更新、促销推送
-- **客服咨询**: 默认问答、人工客服入口
-- **收藏管理**: 收藏列表、价格变动提醒、分享
-- **会员中心**: VIP等级、积分兑换、优惠券、秒杀
+| 端 | 角色 | 核心功能 |
+|---|------|---------|
+| 管理端 | 管理员 | 商家审核、全平台管控、数据统计、库存预警 |
+| 商家端 | 商家 | 商品管理、订单处理、数据统计（数据隔离） |
+| 消费者端 | 消费者 | 浏览购买、购物车、下单支付（模拟）、评价 |
 
-### 🏪 商家端 (Merchant)
-- **资质审核**: 提交资料、管理员审核、状态查询
-- **二次验证**: 登录二次确认、Token管理
-- **图书管理**: 仅管理自己商品、上架/编辑/下架
-- **订单管理**: 本店订单处理、批量发货、退款审核
-- **数据仪表盘**: 销售趋势、热门商品、自定义报表
-- **评论管理**: 查看评价、回复评论、评价统计
-- **支付结算**: 结算记录、提现申请、对账单
-- **在线客服**: 实时回复、默认问答设置、满意度调查
-- **店铺设置**: 店铺信息、Logo、公告、运费规则
-- **促销管理**: 满减、秒杀、优惠券、定时活动
-- **公告查看**: 接收平台公告
+### 关键业务规则
 
-## 🏗️ 技术架构
+- **库存扣减**: 下单时扣减，超时30分钟自动释放
+- **支付方式**: 模拟支付，禁止真实第三方接入
+- **数据隔离**: 商家只能访问自己的数据
 
-### 后端技术栈
-| 技术 | 版本 | 说明 |
+## 技术栈
+
+| 层级 | 技术 | 版本 |
 |------|------|------|
-| Python | 3.11+ | 编程语言 |
-| Django | 4.x | Web框架 |
-| DRF | 3.14+ | RESTful API |
-| JWT | 5.x | 认证(SimpleJWT) |
-| SQLite | 3.x | 开发数据库 |
-| MySQL | 8.x | 生产数据库(兼容) |
+| 后端 | Django + DRF | 4.2.x |
+| 认证 | SimpleJWT | 5.4.x |
+| 前端 | Vue 3 + TypeScript + Vite | 3.4.x |
+| UI | Element Plus + FastCrud | 2.8.x |
+| 状态 | Pinia | 2.x |
+| 数据库 | MySQL | 8.0 |
+| 部署 | Docker + docker-compose | - |
 
-### 前端技术栈
-| 技术 | 版本 | 说明 |
-|------|------|------|
-| Vue | 3.3+ | 前端框架 |
-| Vite | 4.x | 构建工具 |
-| Element Plus | 2.3+ | UI组件库 |
-| Pinia | 2.1+ | 状态管理 |
-| Vue Router | 4.x | 路由管理 |
-| ECharts | 5.x | 数据可视化 |
-| Axios | 1.4+ | HTTP客户端 |
+## 环境要求
 
-## 🚀 快速开始
+- Python >= 3.11.0
+- Node.js >= 18.0
+- MySQL >= 8.0
+- pnpm (前端包管理器)
 
-### 环境要求
-- Python 3.11+
-- Node.js 16+
-- Windows 11 / Linux / macOS
+## 快速开始
 
-### 1. 克隆项目
+### 后端
+
 ```bash
-git clone https://github.com/yourusername/openbookshop.git
-cd openbookshop
+cd backend
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+# Linux/Mac: source .venv/bin/activate
+pip install -r requirements.txt
+copy conf\env.example.py conf\env.py  # 编辑env.py配置MySQL
+python manage.py makemigrations
+python manage.py migrate
+python manage.py init_area
+python manage.py init
+python manage.py runserver 0.0.0.0:8000
 ```
+
+### 前端
+
+```bash
+cd web
+pnpm install
+pnpm run dev    # 开发服务器 http://localhost:8080
+pnpm run build  # 生产构建
+```
+
+### Docker部署
+
+```bash
+docker-compose up -d
+# 首次初始化
+docker exec -ti dvadmin3-django bash
+python manage.py makemigrations
+python manage.py migrate
+python manage.py init_area
+python manage.py init
+exit
+```
+
+**禁止**: `docker-compose down -v`（会删除所有数据）
+**正确**: `docker-compose down`（只停止容器，保留数据）
+
+## 默认账号
+
+- 管理员: `superadmin` / `admin123456`
+
+## 核心文档
+
+| 文档 | 位置 | 说明 |
+|------|------|------|
+| PRD | [docs/PRD.md](docs/PRD.md) | 产品需求、UI设计、功能模块 |
+| PLAN | [docs/PLAN.md](docs/PLAN.md) | 架构规划、数据模型、API设计 |
+| TASKS | [docs/TASKS.md](docs/TASKS.md) | 25个可执行任务、6周开发路线 |
+| 指南 | [AGENTS.md](AGENTS.md) | 二次开发工作流和规范 |
+| 配置 | [CLAUDE.md](CLAUDE.md) | Claude Code操作指南 |
+
+## 上游框架
+
+本项目基于 [Django-Vue3-Admin](https://gitee.com/huge-dream/django-vue3-admin) 开源框架二次开发。
+
+- 上游文档: [https://www.django-vue-admin.com](https://www.django-vue-admin.com)
+- 上游Demo: [https://demo.dvadmin.com](https://demo.dvadmin.com)
+- 插件市场: [https://bbs.django-vue-admin.com/plugMarket.html](https://bbs.django-vue-admin.com/plugMarket.html)

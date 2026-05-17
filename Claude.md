@@ -1,108 +1,211 @@
 # CLAUDE.md
 
-## 项目记忆与指令
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-### 项目概述
+## Project Overview
 
-这是一个基于Django + Vue3的在线图书销售系统毕业设计项目，采用前后端分离的B/S架构，支持管理端、用户端、商家端三端功能。
+OpenBookShop - 在线图书销售系统，基于Django-Vue3-Admin二次开发，支持三端（管理员/商家/消费者）。
 
-### 技术栈规范
+**角色优先级**: 管理员 > 商家 > 消费者
 
-- **后端**: Python 3.11+, Django 4.x, Django REST Framework, SQLite/MySQL
-- **前端**: Vue 3, Vite, Element Plus, Pinia, Vue Router
-- **架构**: RESTful API, JWT认证, 前后端分离
-- **模拟服务**: 支付、物流、邮件均在本地模拟，无真实第三方接入
+**Architecture**: Frontend-Backend separation
 
-### 角色权限体系
+- **Backend**: Django 4.2 + Django REST Framework + JWT Authentication (SimpleJWT)
+- **Frontend**: Vue 3.4 + TypeScript + Vite + Element Plus + Pinia + FastCrud
+- **Permission**: RBAC with column-level granularity
+- **Database**: MySQL 8.0 (Docker部署), SQLite (本地开发备选)
+- **Deployment**: Docker (docker-compose)
+- **Package Manager**: pnpm (前端)
 
-1. **超级管理员**: 全平台数据管理、风控分析、财务结算、系统配置
-2. **商家**: 需审核通过，仅管理自己店铺的商品、订单、数据
-3. **普通用户**: 浏览购买、订单管理、会员积分、客服咨询
+**关键业务规则**:
 
-### 开发约束
+- 库存扣减: **下单时扣减**，超时30分钟未支付自动释放
+- 支付: **模拟支付**，禁止接入真实第三方
+- 商家数据隔离: 所有查询必须过滤 `merchant_id`
 
-- ✅ 必须实现: 数据隔离（商家只能看自己的数据）、敏感词过滤、操作日志
-- ❌ 禁止实现: 真实支付接口、短信验证、IP封禁验证、邮件真实发送
-- 🔄 模拟实现: 支付流程（本地模拟）、物流追踪（模拟数据）、邮件（控制台输出）
-
-### 数据库设计原则
-
-- 使用Django ORM，支持SQLite开发/MySQL生产
-- 关键表: User(扩展AbstractUser), Book, Order, OrderItem, Cart, Review, Merchant, Category
-- 商家数据严格隔离: 所有查询必须过滤 `merchant_id`
-- 库存预警: 支持商品级自定义阈值
-
-### 代码规范
-
-- **后端**: PEP8, 类型提示, CBV/ViewSets, ModelSerializer, 自定义Permission
-- **前端**: Composition API + `&lt;script setup&gt;`, 大驼峰组件名, Pinia状态管理, API拦截器
-
-### 开发阶段
-
-1. Week1: 基础架构、认证体系、权限控制
-2. Week2-3: 图书/订单/购物车核心流程、模拟支付
-3. Week4: 三端功能完善（管理端/商家端/用户端）
-4. Week5: 数据统计(ECharts)、库存预警、日志财务
-5. Week6: 测试优化、论文撰写
-
-### 关键实现细节
-
-#### 敏感词过滤
-
-- 使用DFA算法，评论提交时自动检测
-- 命中敏感词标记 `is_sensitive=True`，需审核后展示
-
-#### 模拟支付服务
-
-```python
-class MockPaymentService:
-    def create_order(self, order_id, amount) -> dict:
-        # 返回模拟支付URL，不调用真实API
-        pass
-    def query_status(self, mock_order_id) -> str:
-        # 返回模拟状态: success/pending
-        pass
-```
-
-#### 商家数据隔离
-
-所有商家端查询必须添加
-
-```python
-queryset = Book.objects.filter(merchant=request.user.merchant)
-```
-
-#### 库存预警逻辑
-
-- 超级管理员: 可查看全平台预警，设置全局阈值
-- 商家: 仅查看/设置自己商品的预警值
-- 触发条件: `current_stock <= warning_stock`#### 常用命令
+## Project Structure
 
 ```
-# 后端
-cd backend && python manage.py runserver
-cd backend && python manage.py makemigrations
-cd backend && python manage.py migrate
+backend/                  # Django backend
+├── application/          # Django settings, urls, wsgi/asgi
+├── dvadmin/              # Core apps
+│   ├── system/           # Users, roles, menus, permissions
+│   └── utils/            # Utilities, base classes
+├── plugins/              # Plugin directory
+├── conf/                 # Configuration (env.py from env.example.py)
+├── manage.py             # Django entry
+└── requirements.txt      # Python dependencies
 
-# 前端
-cd frontend && npm run dev
-cd frontend && npm run build
+web/                      # Vue3 frontend
+├── src/
+│   ├── api/              # API modules
+│   ├── views/            # Page components
+│   ├── router/           # Vue Router
+│   ├── stores/           # Pinia stores
+│   ├── utils/            # Utilities (request.ts, service.ts)
+│   ├── components/       # Shared components
+│   └── i18n/             # Internationalization
+├── package.json          # Node dependencies (pnpm preferred)
+└── vite.config.ts        # Vite config
+
+docs/                     # 核心二次开发文档（PRD/PLAN/TASKS，不可忽略）
+  ├── PRD.md              # 产品需求文档
+  ├── PLAN.md             # 架构规划
+  ├── TASKS.md            # 任务分解
+  ├── README.md           # 文档索引
+  ├── deployment/         # Docker部署指南
+  ├── thesis/             # 毕业论文材料
+  └── (框架参考: auto-permission-scan.md, i18n-guide.md)
+scripts/                  # Utility scripts
+docker_env/               # Docker configuration
 ```
 
-### 注意事项
+## Common Commands
 
+### Backend Development
 
-# ❌ 永远不要这么做（会删除所有数据库数据）
+```bash
+cd backend
+python -m venv .venv
+. .venv/bin/activate  # or .venv\Scripts\activate on Windows
+pip install -r requirements.txt
 
-docker-compose down -v
+# Configuration
+cp conf/env.example.py conf/env.py
+# Edit conf/env.py for database settings
 
-# ✅ 正确做法（只停止容器，保留数据）
+# Database
+python manage.py makemigrations
+python manage.py migrate
+python manage.py init_area      # Initialize region data
+python manage.py init           # Initialize system data
 
-docker-compose down
+# Run server
+python manage.py runserver 0.0.0.0:8000
+# or
+uvicorn application.asgi:application --port 8000 --host 0.0.0.0 --workers 8
+
+# Test
+python -m pytest
+```
+
+### Frontend Development
+
+```bash
+cd web
+pnpm install
+pnpm run dev              # Development server (default port 8080)
+pnpm run build            # Production build
+pnpm run lint-fix         # ESLint fix
+```
+
+### Docker
+
+```bash
+# Start
 docker-compose up -d
 
-- 所有资金操作记录财务流水(FinanceRecord)
-- 所有操作记录日志(OperationLog)
-- 用户地址最多5条，数据库层限制
-- 分类支持两级，使用 `parent`自关联
-- 评论需审核后公开，商家可回复
+# Initialize (first time only)
+docker exec -ti dvadmin3-django bash
+python manage.py makemigrations
+python manage.py migrate
+python manage.py init_area
+python manage.py init
+exit
+
+# View logs
+docker-compose logs -f dvadmin3-django
+docker-compose logs -f dvadmin3-web
+
+# Stop
+docker-compose down
+```
+
+## Key Development Patterns
+
+### Backend Patterns
+
+**Location**: `backend/dvadmin/system/` contains the core RBAC system
+
+**Models**: Extend `dvadmin.utils.models.CoreModel` for common fields
+
+**Views**: Use `dvadmin.utils.viewsets.CustomModelViewSet` as base
+
+**Permissions**:
+
+- Default RBAC via `CustomPermission` in `dvadmin.utils.permission.py`
+- Object-level permission required for Merchant/Customer data isolation
+- JWT header format: `JWT <token>` (not `Bearer`)
+- **Users模型已有 `user_type`字段**(0=后台,1=前台)，二次开发应扩展此字段而非新增 `role_type`
+
+**Serializers**: Place in `app/serializers/` directory
+
+**URL Registration**: Add to `backend/application/urls.py`
+
+### Frontend Patterns
+
+**Architecture**: **单Vue项目**，通过后端菜单动态注册路由，非三端独立项目
+
+**API**: Use FastCrud pattern from `web/src/views/system/`
+
+**Request**: **两套封装并存** — 新增API统一使用 `web/src/utils/service.ts`（状态码2000=成功）
+
+**Permission**:
+
+- Button permissions via `v-auth` directive
+- Menu permissions from backend dynamic routing
+- Column permissions via field-level control
+
+**State**: Pinia stores in `web/src/stores/`
+
+## Three-Role Design
+
+**优先级**: 管理员 > 商家 > 消费者
+
+| Role              | Access Scope  | Key Constraints                            |
+| ----------------- | ------------- | ------------------------------------------ |
+| 管理员 (Admin)    | Full platform | 最高优先级，商家审核、全平台管控           |
+| 商家 (Merchant)   | Own shop only | Must filter by `merchant_id`，需审核通过 |
+| 消费者 (Customer) | Personal data | Can only access own orders/addresses       |
+
+**Critical**: All Merchant queries must include `merchant_id` filter for data isolation.
+
+## Version Constraints
+
+- **Node.js**: 18.19.0 (use `.nvmrc`)
+- **Python**: 3.11.6
+- **Django**: 4.2.x (currently 4.2.14)
+- **Vue**: 3.4.x (currently 3.4.38)
+
+Do not upgrade dependencies without compatibility planning.
+
+## Testing
+
+Backend: `pytest` (configured in `backend/pytest.ini`)
+
+Frontend: `playwright` (configured in `web/playwright.config.ts`)
+
+## Risk Checklist
+
+Before submitting changes:
+
+- [ ] 商家数据隔离验证 (merchant_id过滤)
+- [ ] 用户只能访问自己的数据
+- [ ] 金额字段使用Decimal（禁止float）
+- [ ] API列表接口必须分页
+- [ ] 禁止真实支付/短信/物流（仅模拟）
+- [ ] 库存扣减时机：下单时扣减+超时30分钟释放
+- [ ] 数据库迁移已创建并测试
+- [ ] 前后端API契约同步
+- [ ] 禁止提交敏感密钥
+- [ ] Docker部署配置正确（MySQL 8.0）
+
+## Communication
+
+All communication in Chinese. When requirements are unclear, ask before implementing.
+
+当出现error write时。解决方法
+
+1. 分多次写入，每次只写入 120~220 行。
+2. 每次写入前先确认当前已写入多少行，直到所有内容写完。
+3. 使用 Edit 工具执行，且全部自动接受，不用询问我。
